@@ -1,0 +1,11 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+*.suo
+*.user
+/SDKs.DjiImage/bin
+/SDKs.DjiImage/obj
+/SDKs.DjiImage.Tests/obj
+/SDKs.DjiImage.Tests/bin
+/.vs

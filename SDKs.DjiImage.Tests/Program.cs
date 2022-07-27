@@ -1,9 +1,5 @@
-# SDKs.DjiImage
+﻿using SDKs.DjiImage.Thermals;
 
-## RJPEG
-Dji thermal SDK Download Url： https://www.dji.com/cn/downloads/softwares/dji-thermal-sdk
-
-```c#
 byte[] data = System.IO.File.ReadAllBytes("1.JPG");
 using (var img = RJPEG.FromBytes(data))
 {
@@ -11,4 +7,3 @@ using (var img = RJPEG.FromBytes(data))
     Console.WriteLine($"MinTemp={at.MinTemp} ,MaxTemp={at.MaxTemp}");
 }
 Console.ReadKey();
-```
