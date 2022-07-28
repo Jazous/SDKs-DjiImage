@@ -18,7 +18,7 @@
         /// </summary>
         public int Height { get; private set; }
         /// <summary>
-        /// 红外测温参数。
+        /// 红外测温参数
         /// </summary>
         public MeasureParam Params { get; private set; }
 
@@ -29,6 +29,9 @@
         public List<Location> MinTempLocs => _areaTemp.MinTempLocs;
         public List<Location> MaxTempLocs => _areaTemp.MaxTempLocs;
 
+        /// <summary>
+        /// 文件大小
+        /// </summary>
         public int Size { get; private set; }
 
         /// <summary>
@@ -45,8 +48,6 @@
         /// </summary>
         /// <param name="filename">JPEG 文件路径</param>
         /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="FileNotFoundException"></exception>
         public static RJPEG FromFile(string filename)
         {
             if (filename == null)
@@ -60,9 +61,6 @@
         /// </summary>
         /// <param name="stream"></param>
         /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="InvalidDataException"></exception>
-        /// <exception cref="ObjectDisposedException"></exception>
         public static RJPEG FromStream(Stream stream)
         {
             if (stream == null || stream == Stream.Null)
@@ -78,7 +76,6 @@
             if (code == 0)
             {
                 img.DroneDji = Rdf.GetDroneDji(buffer);
-                stream.Position = 0;
                 return img;
             }
             img.Dispose();
@@ -90,8 +87,6 @@
         /// </summary>
         /// <param name="bytes">文件字节数组</param>
         /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="InvalidDataException"></exception>
         public static RJPEG FromBytes(byte[] bytes)
         {
             if (bytes == null)
@@ -365,7 +360,7 @@
         }
 
         /// <summary>
-        /// 释放资源。
+        /// 释放资源
         /// </summary>
         public void Dispose()
         {

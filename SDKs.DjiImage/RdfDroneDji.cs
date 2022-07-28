@@ -3,13 +3,13 @@
 namespace SDKs.DjiImage
 {
     // <summary>
-    /// 大疆 XMP Meta drone-dji 信息。
+    /// 大疆 XMP Meta drone-dji 信息
     /// </summary>
-    /// <remarks>经纬度坐标为 WGS-84 标准。</remarks>
+    /// <remarks>经纬度坐标为 WGS-84 标准</remarks>
     public struct RdfDroneDji
     {
         /// <summary>
-        /// 表示没有 drone-dji 信息。
+        /// 表示没有 drone-dji 信息
         /// </summary>
         public static readonly RdfDroneDji Empty = new RdfDroneDji();
 
