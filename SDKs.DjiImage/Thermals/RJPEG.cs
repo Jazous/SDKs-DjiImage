@@ -7,7 +7,7 @@
     public sealed class RJPEG : IJPEG
     {
         IntPtr _ph = IntPtr.Zero;
-        short[,]? mData = null;
+        decimal[,]? mData = null;
 
         /// <summary>
         /// 图像宽度
@@ -126,9 +126,9 @@
                 mp.Emissivity = Math.Round(Convert.ToDecimal(dmp.emissivity), 2);
                 Params = mp;
 
-                int rawsize = res.width * res.height * 2;
+                int rawsize = res.width * res.height * 4;
                 byte[] buffer = new byte[rawsize];
-                TSDK.dirp_measure(_ph, buffer, rawsize);
+                TSDK.dirp_measure_ex(_ph, buffer, rawsize);
                 TSDK.dirp_destroy(_ph);
                 _ph = IntPtr.Zero;
                 mData = Cast(buffer, res.width, res.height);
@@ -151,7 +151,7 @@
             if (top < 0 || top > Height - 1)
                 throw new IndexOutOfRangeException($"The top must range from 0 to {Height - 1} ,but now is {top}");
 
-            return mData[left, top] * 0.1m;
+            return Math.Round(mData[left, top], 1);
         }
 
         /// <summary>
@@ -176,75 +176,71 @@
             List<Location> minList = new List<Location>();
             List<Location> maxList = new List<Location>();
 
-            int xoffset = p2.Left - p1.Left;
-            int yoffset = p2.Top - p1.Top;
-            int minx = p1.Left < p2.Left ? p1.Left : p2.Left;
-            int maxx = p1.Left < p2.Left ? p2.Left : p1.Left;
-            int miny = p1.Top < p2.Top ? p1.Top : p2.Top;
-            int maxy = p1.Top < p2.Top ? p2.Top : p1.Top;
-            int x = p1.Left < p2.Left ? p1.Left : p2.Left;
-            int y = p1.Left < p2.Left ? p1.Top : p2.Top;
+            if (p1.Left > p2.Left)
+            {
+                Location p3 = p1;
+                p1 = p2;
+                p2 = p3;
+            }
+            decimal temp = mData[p1.Left, p1.Top];
+            result.MinTemp = temp;
+            result.MaxTemp = temp;
+            result.AvgTemp = temp;
 
-            short temp = mData[x, y];
-            result.MinTemp = temp * 0.1m;
-            result.MaxTemp = temp * 0.1m;
-            result.AvgTemp = temp * 0.1m;
-            var tp = new Location() { Left = x, Top = y };
-            minList.Add(tp);
-            maxList.Add(tp);
-            if (xoffset == 0 && yoffset == 0)
+            minList.Add(p1);
+            maxList.Add(p1);
+            if (p1.Left == p2.Left && p1.Top == p2.Top)
                 return result;
 
             int sum = 0;
-            int sumTemp = 0;
-            if (xoffset == 0)
+            decimal sumTemp = 0;
+            int miny = Math.Min(p1.Top, p2.Top);
+            int maxy = Math.Max(p1.Top, p2.Top);
+            if (p1.Left == p2.Left)
             {
                 for (int i = miny; i <= maxy; i++)
                 {
-                    temp = mData[x, i];
-                    sum = sum + temp;
-                    RefProcess(ref result, minList, maxList, temp * 0.1m, x, i);
-                }
-                result.MinTempLocs = minList;
-                result.MaxTempLocs = maxList;
-                result.AvgTemp = Math.Round(decimal.Divide(sum, maxy - miny) * 0.1m, 1);
-                return result;
-            }
-            if (yoffset == 0)
-            {
-                for (int i = minx; i <= maxx; i++)
-                {
-                    temp = mData[i, y];
-                    sum = sum + temp;
-                    RefProcess(ref result, minList, maxList, temp * 0.1m, i, y);
-                }
-                result.MinTempLocs = minList;
-                result.MaxTempLocs = maxList;
-                result.AvgTemp = Math.Round(decimal.Divide(sum, maxx - minx) * 0.1m, 1);
-                return result;
-            }
-            for (int i = minx; i <= maxx; i++)
-            {
-                for (int j = miny; j <= maxy; j++)
-                {
-                    int dx1 = i - minx;
-                    int dy1 = j - miny;
-
-                    int dx2 = maxx - i;
-                    int dy2 = maxy - j;
-
-                    if (dx1 * dy2 != dx2 * dy1)
-                        continue;
-
-                    temp = mData[i, j];
+                    temp = mData[p1.Left, i];
                     sumTemp += temp;
                     sum++;
-                    RefProcess(ref result, minList, maxList, temp * 0.1m, i, j);
+                    RefProcess(ref result, minList, maxList, temp , p1.Left, i);
                 }
+                result.MinTempLocs = minList;
+                result.MaxTempLocs = maxList;
+                result.AvgTemp = Math.Round(decimal.Divide(sumTemp, sum), 1);
+                return result;
+            }
+            if (p1.Top == p2.Top)
+            {
+                for (int i = p1.Left; i <= p2.Left; i++)
+                {
+                    temp = mData[i, p1.Top];
+                    sumTemp += temp;
+                    sum++;
+                    RefProcess(ref result, minList, maxList, temp, i, p1.Top);
+                }
+                result.MinTempLocs = minList;
+                result.MaxTempLocs = maxList;
+                result.AvgTemp = Math.Round(decimal.Divide(sumTemp, sum), 1);
+                return result;
+            }
+            decimal k = decimal.Divide(Math.Abs(p2.Top - p1.Top), p2.Left - p1.Left);
+            bool up = p1.Top > p2.Top;
+            int lastjy = -1;
+            for (int i = p1.Left; i <= p2.Left; i++)
+            {
+                int y = Convert.ToInt32(up ? (maxy - (i - p1.Left) * k) : miny + (i - p1.Left) * k);
+                if (lastjy == y)
+                    continue;
+                lastjy = y;
+                temp = mData[i, y];
+                sumTemp += temp;
+                sum++;
+                RefProcess(ref result, minList, maxList, temp, i, y);
             }
             result.MinTempLocs = minList;
             result.MaxTempLocs = maxList;
-            result.AvgTemp = Math.Round(decimal.Divide(sumTemp, sum) * 0.1m, 1);
+            result.AvgTemp = Math.Round(decimal.Divide(sumTemp, sum), 1);
             return result;
         }
 
@@ -271,17 +267,17 @@
             if (bottom < 0 || bottom > Height - 1)
                 throw new IndexOutOfRangeException($"The rect.Bottom must range from 0 to {Height - 1} ,but now is {bottom}");
 
-            short temp = mData[left, top];
+            decimal temp = mData[left, top];
             var result = new AreaTemperature();
-            result.MinTemp = temp * 0.1m;
-            result.MaxTemp = temp * 0.1m;
-            result.AvgTemp = temp * 0.1m;
+            result.MinTemp = temp;
+            result.MaxTemp = temp;
+            result.AvgTemp = temp;
 
             List<Location> minList = new List<Location>();
             List<Location> maxList = new List<Location>();
 
             int sum = 0;
-            int sumTemp = 0;
+            decimal sumTemp = 0;
             for (int i = left; i < right; i++)
             {
                 for (int j = top; j < bottom; j++)
@@ -289,21 +285,21 @@
                     temp = mData[i, j];
                     sumTemp += temp;
                     sum++;
-                    RefProcess(ref result, minList, maxList, temp * 0.1m, i, j);
+                    RefProcess(ref result, minList, maxList, temp, i, j);
                 }
             }
             result.MinTempLocs = minList;
             result.MaxTempLocs = maxList;
-            result.AvgTemp = Math.Round(decimal.Divide(sumTemp, sum) * 0.1m, 1);
+            result.AvgTemp = Math.Round(decimal.Divide(sumTemp, sum), 1);
             return result;
         }
 
-        short[,] Cast(byte[] rawData, int width, int height)
+        decimal[,] Cast(byte[] rawData, int width, int height)
         {
-            short[,] result = new short[width, height];
+            var result = new decimal[width, height];
             int index = 0;
-            byte[] arr = new byte[2];
-            short temp;
+            byte[] arr = new byte[4];
+            decimal temp;
             int i, j;
             var area = new AreaTemperature();
             area.MinTemp = short.MaxValue;
@@ -312,25 +308,28 @@
             List<Location> maxList = new List<Location>();
 
             int sum = 0;
-            int sumTemp = 0;
+            decimal sumTemp = 0;
             for (i = 0; i < height; i++)
             {
                 for (j = 0; j < width; j++)
                 {
                     arr[0] = rawData[index];
                     arr[1] = rawData[index + 1];
-                    index = index + 2;
-                    temp = BitConverter.ToInt16(arr, 0);
+                    arr[2] = rawData[index + 2];
+                    arr[3] = rawData[index + 3];
+                    index += 4;
+                    temp = Convert.ToDecimal(BitConverter.ToSingle(arr, 0));
                     result[j, i] = temp;
 
                     sumTemp += temp;
                     sum++;
-                    RefProcess(ref area, minList, maxList, temp * 0.1m, j, i);
+                    RefProcess(ref area, minList, maxList, temp, j, i);
                 }
             }
+
             area.MinTempLocs = minList;
             area.MaxTempLocs = maxList;
-            area.AvgTemp = Math.Round(decimal.Divide(sumTemp, sum) * 0.1m, 1);
+            area.AvgTemp = Math.Round(decimal.Divide(sumTemp, sum), 1);
             _areaTemp = area;
             return result;
         }

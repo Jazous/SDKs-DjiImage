@@ -14,7 +14,7 @@
         /// 空气湿度
         /// </summary>
         /// <remarks>20^100（%）</remarks>
-        public decimal Humidity { get; set; }
+        public int Humidity { get; set; }
         /// <summary>
         /// 发射率
         /// </summary>

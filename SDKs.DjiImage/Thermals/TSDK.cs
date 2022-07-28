@@ -28,9 +28,9 @@
             return isLinux ? TSDK_Linux.dirp_get_original_raw(h, raw_image, size) : TSDK_Windows.dirp_get_original_raw(h, raw_image, size);
         }
 
-        public static int dirp_measure(IntPtr h, byte[] temp_image, int size)
+        public static int dirp_measure_ex(IntPtr h, byte[] temp_image, int size)
         {
-            return isLinux ? TSDK_Linux.dirp_measure(h, temp_image, size) : TSDK_Windows.dirp_measure(h, temp_image, size);
+            return isLinux ? TSDK_Linux.dirp_measure_ex(h, temp_image, size) : TSDK_Windows.dirp_measure_ex(h, temp_image, size);
         }
 
         public static int dirp_get_measurement_params(IntPtr h, ref dirp_measurement_params_t measurement_params)

@@ -12,18 +12,17 @@ PM> Install-Package SDKs.DjiImage -Version 1.0.0
 
 https://www.dji.com/cn/downloads/softwares/dji-thermal-sdk
 
-dji_thermal_sdk_v1.3_20220517
-├── libdirp.dll
-├── libdirp.so
-├── libv_dirp.dll
-├── libv_dirp.so
-├── libv_girp.dll
-├── libv_girp.so
-├── libv_iirp.dll
-├── libv_iirp.so
-└── libv_list.ini
+dji_thermal_sdk_v1.3_20220517.zip
 
-下载后放到执行程序根目录下
+Windows 环境
+
+libdirp.dll、libv_dirp.dll、ibv_girp.dll、libv_iirp.dll、libv_list.ini
+
+Linux 环境
+
+libdirp.so、libv_dirp.so、libv_girp.so、libv_iirp.so、libv_list.ini
+
+下载后将对应的 .dll 或 .so 文件拷贝到执行程序根目录下
 
 ##### 3、使用方法：
 
