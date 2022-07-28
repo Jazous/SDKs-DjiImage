@@ -5,7 +5,7 @@ https://github.com/Jazous/SDKs-DjiImage
 ##### 1、Nuget 安装：
 
 ```shell
-PM> Install-Package SDKs.DjiImage -Version 1.0.0
+PM> Install-Package SDKs.DjiImage
 ```
 
 ##### 2、下载 Dji TSDK 添加到项目中：
