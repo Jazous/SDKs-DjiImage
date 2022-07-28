@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <SignAssembly>False</SignAssembly>
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-	<Version>1.0.0</Version>
+	<Version>1.0.1</Version>
 	<Authors>jazous</Authors>
 	<RepositoryUrl>https://github.com/Jazous/SDKs-DjiImage.git</RepositoryUrl>
 	<PackageProjectUrl>https://github.com/Jazous/SDKs-DjiImage</PackageProjectUrl>
@@ -20,6 +20,7 @@
 	<PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
 	<Copyright>745424554@qq.com</Copyright>
 	<GenerateDocumentationFile>False</GenerateDocumentationFile>
+	<PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
