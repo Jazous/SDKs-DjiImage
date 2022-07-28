@@ -24,4 +24,4 @@ DJI’s Thermal SDK library is available at
 https://www.dji.com/cn/downloads/softwares/dji-thermal-sdk.
 The SDKs-DjiImage licensed under MIT license.A copy of the MIT license is 
 provided below and is also available at 
-https://github.com/Jazous/SDKs-DjiImage/master/LICENCE.txt
+https://github.com/Jazous/SDKs-DjiImage/master/LICENCE.txt.

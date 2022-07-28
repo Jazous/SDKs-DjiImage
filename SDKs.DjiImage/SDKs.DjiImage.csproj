@@ -1,10 +1,31 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>SDKs.DjiImage</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <SignAssembly>False</SignAssembly>
+	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	<Version>1.0.0</Version>
+	<Authors>jazous</Authors>
+	<RepositoryUrl>https://github.com/Jazous/SDKs-DjiImage.git</RepositoryUrl>
+	<PackageProjectUrl>https://github.com/Jazous/SDKs-DjiImage</PackageProjectUrl>
+	<PackageIconUrl></PackageIconUrl>
+	<RepositoryType>git</RepositoryType>
+	<Description>SDKs.DjiImage</Description>
+	<LangVersion>latest</LangVersion>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
+	<NeutralLanguage>zh</NeutralLanguage>
+	<PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+	<Copyright>745424554@qq.com</Copyright>
+	<GenerateDocumentationFile>False</GenerateDocumentationFile>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 </Project>
