@@ -6,6 +6,8 @@
 *.user
 /SDKs.DjiImage/bin
 /SDKs.DjiImage/obj
+/SDKs.DjiImage.Net48/bin
+/SDKs.DjiImage.Net48/obj
 /SDKs.DjiImage.Tests/obj
 /SDKs.DjiImage.Tests/bin
 /.vs

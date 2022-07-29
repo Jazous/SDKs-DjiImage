@@ -1,28 +1,21 @@
 ﻿namespace SDKs.DjiImage.Thermals
 {
-    static class TSDK_Linux
+    static class _sdkwin
     {
-        const string dllName = "libdirp.so";
-
+        const string dllName = "libdirp.dll";
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
-        public extern static int dirp_create_from_rjpeg(byte[] data, int size, ref IntPtr ph);
-
+        public extern static int dirp_create_from_rjpeg(byte[] data, int size, ref System.IntPtr ph);
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
-        public extern static int dirp_get_rjpeg_version(IntPtr h, ref dirp_rjpeg_version_t version);
-
+        public extern static int dirp_get_rjpeg_version(System.IntPtr h, ref dirp_rjpeg_version_t version);
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
-        public extern static int dirp_get_rjpeg_resolution(IntPtr h, ref dirp_resolution_t resolution);
-
+        public extern static int dirp_get_rjpeg_resolution(System.IntPtr h, ref dirp_resolution_t resolution);
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
-        public extern static int dirp_get_original_raw(IntPtr h, byte[] raw_image, int size);
-
+        public extern static int dirp_get_original_raw(System.IntPtr h, byte[] raw_image, int size);
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
-        public extern static int dirp_measure_ex(IntPtr h, byte[] temp_image, int size);
-
+        public extern static int dirp_measure(System.IntPtr h, byte[] temp_image, int size);
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
-        public extern static int dirp_get_measurement_params(IntPtr h, ref dirp_measurement_params_t measurement_params);
-
+        public extern static int dirp_get_measurement_params(System.IntPtr h, ref MeasureParam measurement_params);
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
-        public extern static int dirp_destroy(IntPtr h);
+        public extern static int dirp_destroy(System.IntPtr h);
     }
 }
