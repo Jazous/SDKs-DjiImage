@@ -1,12 +1,12 @@
 ﻿namespace SDKs.DjiImage
 {
     /// <summary>
-    /// 大疆无人机照片。
+    /// 大疆无人机照片
     /// </summary>
     public sealed class VJPEG : IJPEG
     {
         /// <summary>
-        /// XMP Meta drone-dji 信息。
+        /// XMP Meta drone-dji 信息
         /// </summary>
         public RdfDroneDji DroneDji { get; private set; }
 
@@ -31,7 +31,7 @@
         /// <summary>
         /// 从指定文件流创建大疆 JPEG 图片
         /// </summary>
-        /// <param name="stream">图片字节流。</param>
+        /// <param name="stream">图片字节流</param>
         /// <returns></returns>
         public static VJPEG FromStream(System.IO.Stream stream)
         {
@@ -44,7 +44,7 @@
         }
 
         /// <summary>
-        /// 从指定文件字节数组中创建大疆热红外 JPEG 图片
+        /// 从指定文件字节数组中创建大疆热 JPEG 图片
         /// </summary>
         /// <param name="bytes">文件字节数组</param>
         /// <returns></returns>
@@ -59,7 +59,7 @@
         }
 
         /// <summary>
-        /// 释放资源。
+        /// 释放资源
         /// </summary>
         public void Dispose()
         {

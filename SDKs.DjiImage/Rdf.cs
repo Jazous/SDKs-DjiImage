@@ -6,7 +6,8 @@ namespace SDKs.DjiImage
     {
         const string rdf_Description = "<rdf:Description";
         const string drone_dji_Version = "drone-dji:Version=[\"][\\d]+[.\\d]*[\"]";
-        const string drone_dji_GpsStatus = "drone-dji:GpsStatus=[\"][\\w]+[\"]";
+        const string drone_dji_Model = "tiff:Model=[\"].+[\"]";
+        const string drone_dji_GpsStatus = "drone-dji:GpsStatus=[\"].+[\"]";
         const string drone_dji_GpsLatitude = "drone-dji:GpsLatitude=[\"][-+]{0,1}\\d+[.\\d+]*[\"]";
         const string drone_dji_GpsLongitude = "drone-dji:GpsLongitude=[\"][-+]{0,1}\\d+[.\\d+]*[\"]";
         const string drone_dji_GpsLongtitude = "drone-dji:GpsLongtitude=[\"][-+]{0,1}\\d+[.\\d+]*[\"]";
@@ -94,6 +95,10 @@ namespace SDKs.DjiImage
             var mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_Version);
             if (mc.Success)
                 meta.Version = mc.Value.Split('=')[1].Trim('"');
+
+            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_Model);
+            if (mc.Success)
+                meta.Model = mc.Value.Split('=')[1].Trim('"');
 
             mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_GpsStatus);
             if (mc.Success)

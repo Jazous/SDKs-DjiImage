@@ -35,7 +35,7 @@
         public int Size { get; private set; }
 
         /// <summary>
-        /// XMP Meta drone-dji 信息。
+        /// XMP Meta drone-dji 信息
         /// </summary>
         public RdfDroneDji DroneDji { get; private set; }
 
@@ -222,13 +222,16 @@
             minList.Add(loc);
             maxList.Add(loc);
 
-            if (left1 == left2 && top1 == top2)
+            int xofffset = left2 - left1;
+            int yofffset = System.Math.Abs(top2 - top1);
+
+            if (xofffset == 0 && yofffset == 0)
                 return result;
 
             float sumTemp = 0;
             int miny = System.Math.Min(top1, top2);
             int maxy = System.Math.Max(top1, top2);
-            if (left1 == left2)
+            if (xofffset == 0)
             {
                 for (int i = miny; i <= maxy; i++)
                 {
@@ -238,10 +241,10 @@
                 }
                 result.MinTempLocs = minList;
                 result.MaxTempLocs = maxList;
-                result.AvgTemp = float.Parse((sumTemp / (maxy - miny + 1)).ToString("f1"));
+                result.AvgTemp = System.MathF.Round(sumTemp / (yofffset + 1), 1);
                 return result;
             }
-            if (top1 == top2)
+            if (yofffset == 0)
             {
                 for (int i = left1; i <= left2; i++)
                 {
@@ -251,13 +254,12 @@
                 }
                 result.MinTempLocs = minList;
                 result.MaxTempLocs = maxList;
-                result.AvgTemp = float.Parse((sumTemp / (left2 - left1 + 1)).ToString("f1"));
+                result.AvgTemp = System.MathF.Round(sumTemp / (xofffset + 1), 1);
                 return result;
             }
-            decimal k = decimal.Divide(maxy - miny + 1, left2 - left1 + 1);
+            decimal k = decimal.Divide(yofffset + 1, xofffset + 1);
             bool up = top1 > top2;
             int j;
-            int sum = 0;
             //up: j = maxy - [(maxy  - miny + 1)/(maxx - minx + 1)] * (i - minx + 1) + 1
             //dn: j = [(maxy - miny + 1)/(maxx - minx + 1)] * (i - minx + 1) + miny - 1
             for (int i = left1; i <= left2; i++)
@@ -265,15 +267,21 @@
                 j = System.Convert.ToInt32(up ? (maxy - (i - left1 + 1) * k + 1) : (i - left1 + 1) * k + miny - 1);
                 temp = mData[i, j];
                 sumTemp += temp;
-                sum++;
                 RefProcess(ref result, minList, maxList, temp, i, j);
             }
             result.MinTempLocs = minList;
             result.MaxTempLocs = maxList;
-            result.AvgTemp = float.Parse((sumTemp / (left2 - left1 + 1)).ToString("f1"));
+            result.AvgTemp = System.MathF.Round(sumTemp / (xofffset + 1), 1);
             return result;
         }
-
+        /// <summary>
+        /// 获取图像指定矩形范围的温度
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
         public AreaTemperature GetTempRect(Location p, int width, int height)
         {
             if (p.Left < 0 || p.Left > Width - 1)
@@ -346,7 +354,7 @@
             int sumCount = (xoffset + 1) * (yoffset + 1);
             result.MinTempLocs = minList;
             result.MaxTempLocs = maxList;
-            result.AvgTemp = float.Parse((sumTemp / sumCount).ToString("f1"));
+            result.AvgTemp = System.MathF.Round((sumTemp / sumCount), 1);
             return result;
         }
 
@@ -363,7 +371,7 @@
             float sumTemp = 0;
             int index = 0;
             int i, j;
-            byte[] arr = new byte[4];
+            byte[] arr = new byte[2];
             for (i = 0; i < height; i++)
             {
                 for (j = 0; j < width; j++)
@@ -371,7 +379,7 @@
                     arr[0] = rawData[index];
                     arr[1] = rawData[index + 1];
                     index += 2;
-                    temp = System.BitConverter.ToInt16(arr, 0) * 0.1f;
+                    temp = System.MathF.Round(System.BitConverter.ToInt16(arr, 0) * 0.1f, 1);
                     result[j, i] = temp;
 
                     sumTemp += temp;
@@ -381,12 +389,12 @@
 
             area.MinTempLocs = minList;
             area.MaxTempLocs = maxList;
-            area.AvgTemp = float.Parse((sumTemp / result.Length).ToString("f1"));
+            area.AvgTemp = System.MathF.Round((sumTemp / result.Length), 1);
             _areaTemp = area;
             return result;
         }
 
-        static void RefProcess(ref AreaTemperature area,System.Collections.Generic.List<Location> minList, System.Collections.Generic.List<Location> maxList, float temp, int x, int y)
+        static void RefProcess(ref AreaTemperature area, System.Collections.Generic.List<Location> minList, System.Collections.Generic.List<Location> maxList, float temp, int x, int y)
         {
             if (temp < area.MinTemp)
             {

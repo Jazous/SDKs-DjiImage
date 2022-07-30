@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <SignAssembly>False</SignAssembly>
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-	<Version>1.3.0</Version>
+	<Version>1.3.1</Version>
 	<Authors>jazous</Authors>
 	<RepositoryUrl>https://github.com/Jazous/SDKs-DjiImage.git</RepositoryUrl>
 	<PackageProjectUrl>https://github.com/Jazous/SDKs-DjiImage</PackageProjectUrl>

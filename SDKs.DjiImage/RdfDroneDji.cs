@@ -16,23 +16,30 @@
         /// </summary>
         public string Version { get; set; }
         /// <summary>
-        /// Gps 状态。Normal、RTK
+        /// 相机型号
         /// </summary>
+        public string Model { get; set; }
+        /// <summary>
+        /// Gps 状态
+        /// </summary>
+        /// <remarks>如：Normal，RTK</remarks>
         public string GpsStatus { get; set; }
         /// <summary>
-        /// 相机位置的纬度。北纬为正，南纬为负
+        /// 相机位置的纬度
         /// </summary>
+        /// <remarks>北纬为正，南纬为负</remarks>
         public decimal GpsLatitude { get; set; }
         /// <summary>
-        /// 相机位置的经度。东经为正，西经为负
+        /// 相机位置的经度
         /// </summary>
+        /// <remarks>东经为正，西经为负</remarks>
         public decimal GpsLongitude { get; set; }
         /// <summary>
-        /// 绝对高度。
+        /// 绝对高度
         /// </summary>
         public decimal AbsoluteAltitude { get; set; }
         /// <summary>
-        /// 相对高度。相对于起飞点
+        /// 相对高度
         /// </summary>
         public decimal RelativeAltitude { get; set; }
         /// <summary>
@@ -63,8 +70,8 @@
         /// RTK 状态
         /// </summary>
         /// <remarks>
-        /// 0-无定位； 16-单点定位模式； 34-RTK浮点解； 50-RTK固定解
-        /// 当不为 50 时，不推荐使用次照片进行建图
+        /// 0-无定位， 16-单点定位模式， 34-RTK浮点解， 50-RTK固定解。<br/>
+        /// 当不为 50 时，不推荐使用次照片进行建图。
         /// </remarks>
         public int? RtkFlag { get; set; }
     }
