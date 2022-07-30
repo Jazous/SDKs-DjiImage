@@ -81,7 +81,6 @@
             img.Dispose();
             throw new System.ArgumentException(((dirp_ret_code_e)code).ToString(), nameof(stream));
         }
-
         /// <summary>
         /// 从指定字节数组创建大疆热红外 R-JPEG 图片
         /// </summary>
@@ -133,6 +132,22 @@
         /// <summary>
         /// 获取图片指定位置的温度
         /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
+        public float GetTemp(Location p)
+        {
+            if (p.Left < 0 || p.Left > Width - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(p.Left), p.Left, $"must be positive integer and less than {Width}.");
+
+            if (p.Top < 0 || p.Top > Height - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(p.Top), p.Top, $"must be positive integer and less than {Height}.");
+
+            return mData[p.Left, p.Top];
+        }
+        /// <summary>
+        /// 获取图片指定位置的温度
+        /// </summary>
         /// <param name="left"></param>
         /// <param name="top"></param>
         /// <returns></returns>
@@ -166,64 +181,88 @@
             if (p2.Top < 0 || p2.Top > Height - 1)
                 throw new System.ArgumentOutOfRangeException(nameof(p2.Top), p2.Top, $"must be positive integer and less than {Height}.");
 
+            return GetTempLine(p1.Left, p1.Top, p2.Left, p2.Top);
+        }
+        /// <summary>
+        /// 获取图像指定直线上的温度
+        /// </summary>
+        /// <param name="left1"></param>
+        /// <param name="top1"></param>
+        /// <param name="left2"></param>
+        /// <param name="top2"></param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
+        public AreaTemperature GetTempLine(int left1, int top1, int left2, int top2)
+        {
+            if (left1 < 0 || left1 > Width - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(left1), left1, $"must be positive integer and less than {Width}.");
+            if (top1 < 0 || top1 > Height - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(top1), top1, $"must be positive integer and less than {Height}.");
+            if (left2 < 0 || left2 > Width - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(left2), left2, $"must be positive integer and less than {Width}..");
+            if (top2 < 0 || top2 > Height - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(top2), top2, $"must be positive integer and less than {Height}.");
+
             var result = new AreaTemperature();
             var minList = new System.Collections.Generic.List<Location>();
             var maxList = new System.Collections.Generic.List<Location>();
 
-            if (p1.Left > p2.Left)
+            Location loc = new Location(left1, top1);
+            if (left1 > left2)
             {
-                Location p3 = p1;
-                p1 = p2;
-                p2 = p3;
+                left1 = left2;
+                top1 = top2;
+                left2 = loc.Left;
+                top2 = loc.Top;
             }
-            float temp = mData[p1.Left, p1.Top];
+            float temp = mData[left1, top1];
             result.MinTemp = temp;
             result.MaxTemp = temp;
             result.AvgTemp = temp;
-            minList.Add(p1);
-            maxList.Add(p1);
+            minList.Add(loc);
+            maxList.Add(loc);
 
-            if (p1.Left == p2.Left && p1.Top == p2.Top)
+            if (left1 == left2 && top1 == top2)
                 return result;
 
             float sumTemp = 0;
-            int miny = System.Math.Min(p1.Top, p2.Top);
-            int maxy = System.Math.Max(p1.Top, p2.Top);
-            if (p1.Left == p2.Left)
+            int miny = System.Math.Min(top1, top2);
+            int maxy = System.Math.Max(top1, top2);
+            if (left1 == left2)
             {
                 for (int i = miny; i <= maxy; i++)
                 {
-                    temp = mData[p1.Left, i];
+                    temp = mData[left1, i];
                     sumTemp += temp;
-                    RefProcess(ref result, minList, maxList, temp, p1.Left, i);
+                    RefProcess(ref result, minList, maxList, temp, left1, i);
                 }
                 result.MinTempLocs = minList;
                 result.MaxTempLocs = maxList;
                 result.AvgTemp = float.Parse((sumTemp / (maxy - miny + 1)).ToString("f1"));
                 return result;
             }
-            if (p1.Top == p2.Top)
+            if (top1 == top2)
             {
-                for (int i = p1.Left; i <= p2.Left; i++)
+                for (int i = left1; i <= left2; i++)
                 {
-                    temp = mData[i, p1.Top];
+                    temp = mData[i, top1];
                     sumTemp += temp;
-                    RefProcess(ref result, minList, maxList, temp, i, p1.Top);
+                    RefProcess(ref result, minList, maxList, temp, i, top1);
                 }
                 result.MinTempLocs = minList;
                 result.MaxTempLocs = maxList;
-                result.AvgTemp = float.Parse((sumTemp / (p2.Left - p1.Left + 1)).ToString("f1"));
+                result.AvgTemp = float.Parse((sumTemp / (left2 - left1 + 1)).ToString("f1"));
                 return result;
             }
-            decimal k = decimal.Divide(maxy - miny + 1, p2.Left - p1.Left + 1);
-            bool up = p1.Top > p2.Top;
+            decimal k = decimal.Divide(maxy - miny + 1, left2 - left1 + 1);
+            bool up = top1 > top2;
             int j;
             int sum = 0;
             //up: j = maxy - [(maxy  - miny + 1)/(maxx - minx + 1)] * (i - minx + 1) + 1
             //dn: j = [(maxy - miny + 1)/(maxx - minx + 1)] * (i - minx + 1) + miny - 1
-            for (int i = p1.Left; i <= p2.Left; i++)
+            for (int i = left1; i <= left2; i++)
             {
-                j = System.Convert.ToInt32(up ? (maxy - (i - p1.Left + 1) * k + 1) : (i - p1.Left + 1) * k + miny - 1);
+                j = System.Convert.ToInt32(up ? (maxy - (i - left1 + 1) * k + 1) : (i - left1 + 1) * k + miny - 1);
                 temp = mData[i, j];
                 sumTemp += temp;
                 sum++;
@@ -231,10 +270,29 @@
             }
             result.MinTempLocs = minList;
             result.MaxTempLocs = maxList;
-            result.AvgTemp = float.Parse((sumTemp / (p2.Left - p1.Left + 1)).ToString("f1"));
+            result.AvgTemp = float.Parse((sumTemp / (left2 - left1 + 1)).ToString("f1"));
             return result;
         }
 
+        public AreaTemperature GetTempRect(Location p, int width, int height)
+        {
+            if (p.Left < 0 || p.Left > Width - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(p.Left), p.Left, $"must be positive integer and less than {Width}.");
+
+            if (p.Top < 0 || p.Top > Height - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(p.Top), p.Top, $"must be positive integer and less than {Height}.");
+
+            int right = p.Left + width;
+            int bottom = p.Top + height;
+
+            if (right < 0 || right > Width - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(width), width, $"p.Left + width must be positive integer and less than {Width}.");
+
+            if (bottom < 0 || bottom > Height - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(height), height, $"p.Top + height must be positive integer and less than {Height}.");
+
+            return p.Left < right ? GetTempRect(p.Left, p.Top, right, bottom) : GetTempRect(right, bottom, p.Left, p.Top);
+        }
         /// <summary>
         /// 获取图像指定矩形范围的温度
         /// </summary>
@@ -254,9 +312,13 @@
                 throw new System.ArgumentOutOfRangeException(nameof(right), right, $"must be positive integer and less than {Width}.");
             if (bottom < 0 || bottom > Height - 1)
                 throw new System.ArgumentOutOfRangeException(nameof(bottom), bottom, $"must be positive integer and less than {Height}.");
-            if (left > right)
+
+            int xoffset = right - left;
+            if (xoffset < 0)
                 throw new System.ArgumentOutOfRangeException(nameof(right), right, "right must greater than left.");
-            if (top > bottom)
+
+            int yoffset = bottom - top;
+            if (yoffset < 0)
                 throw new System.ArgumentOutOfRangeException(nameof(bottom), right, "bottom must greater than top.");
 
             float temp = mData[left, top];
@@ -281,7 +343,7 @@
                     RefProcess(ref result, minList, maxList, temp, i, j);
                 }
             }
-            int sumCount = (right - left + 1) * (bottom - top + 1);
+            int sumCount = (xoffset + 1) * (yoffset + 1);
             result.MinTempLocs = minList;
             result.MaxTempLocs = maxList;
             result.AvgTemp = float.Parse((sumTemp / sumCount).ToString("f1"));
