@@ -25,9 +25,10 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # 1.Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: 0/7 Checks-out your repositor
       - uses: actions/checkout@v3
       # 2.Authenticates packages to push to GPR
-      - name: 1/5 Setup .NET6
+      - name: 1/7 Setup .NET6
         uses: actions/setup-dotnet@v2
         with:
           dotnet-version: 6.0.x
@@ -35,17 +36,18 @@ jobs:
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       # 3.build
-      - name: 2/5 Install dependencies
+      - name: 2/7 Install dependencies
         run: dotnet restore SDKs.DjiImage
-      - name: 3/5 Build SDKs.DjiImage
+      - name: 3/7 Build SDKs.DjiImage
         run: dotnet build --configuration Release SDKs.DjiImage
-      - name: 4/5 Create the package
+      - name: 4/7 Create the package
         run: dotnet pack --configuration Release SDKs.DjiImage
       # 4.Authenticates packages to push to nuget.org.
+      - name: 6/7 Create the package
       - uses: actions/setup-dotnet@v2
         with:
           dotnet-version: 6.0.x
-      - name: 5/5 Publish the package to nuget.org
+      - name: 7/7 Publish the package to nuget.org
         run: dotnet nuget push */bin/Release/*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_TOKEN }}
