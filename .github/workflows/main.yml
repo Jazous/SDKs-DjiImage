@@ -38,9 +38,9 @@ jobs:
       #- name: 2.Install dependencies
       #  run: dotnet restore SDKs.DjiImage
       - name: 3.Build SDKs.DjiImage
-        run: dotnet build SDKs.DjiImage/SDKs.DjiImage.csproj --configuration Release
+        run: dotnet build SDKs.DjiImage --configuration Release
       - name: 4.Create nuget package
-        run: dotnet pack SDKs.DjiImage/SDKs.DjiImage.csproj --configuration Release --no-build
+        run: dotnet pack SDKs.DjiImage --configuration Release --no-build
       # 4.Authenticates packages to push to nuget.org.
       - uses: actions/setup-dotnet@v2
         with:
@@ -49,6 +49,6 @@ jobs:
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: 5.Publish the package to nuget.org
-        run: dotnet nuget push SDKs.DjiImage/bin/Release/*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
+        run: dotnet nuget push */bin/Release/*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json --skip-duplicate
         env:
           NUGET_AUTH_TOKEN: ${{secrets.NUGET_TOKEN}}
