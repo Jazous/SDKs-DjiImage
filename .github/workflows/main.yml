@@ -33,11 +33,17 @@ jobs:
           dotnet-version: 6.0.x
           source-url: https://nuget.pkg.github.com/willzou/index.json
         env:
-          NUGET_AUTH_TOKEN: ${{secrets.GPDT_TOKEN}}
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: 2.Build SDKs.DjiImage
         run: dotnet build SDKs.DjiImage --configuration Release
       - name: 3.Create nuget package
         run: dotnet pack SDKs.DjiImage --configuration Release --no-build
       # 4.Authenticates packages to push to nuget.org.
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 6.0.x
+          source-url: https://nuget.pkg.github.com/willzou/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: 4.Publish the package to nuget.org
         run: dotnet nuget push */bin/Release/*.nupkg -k ${{secrets.NUGET_TOKEN}} -s https://api.nuget.org/v3/index.json --skip-duplicate --no-symbols
