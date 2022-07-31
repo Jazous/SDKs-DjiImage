@@ -5,35 +5,27 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  #release:
-  #  types: [published]
-
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # 1.Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
-      # 2.build
-      - name: 1/4 Setup .NET
+      - name: 1.Setup .NET Standard SDK
       - uses: actions/setup-dotnet@v2
         with:
           dotnet-version: 6.0.x
           source-url: https://nuget.pkg.github.com/willzou/index.json
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-     # 3.build
-      - name: 2/4 Build SDKs.DjiImage
-        run: dotnet build --configuration Release SDKs.DjiImage
-      - name: 3/4 Create package
-        run: dotnet pack --configuration Release SDKs.DjiImage
-      # 4.Authenticates packages to push to nuget.org.
-      - uses: actions/setup-dotnet@v2
-        with:
-          dotnet-version: 6.0.x
-      - name: 1/4 Publish the package to nuget.org
-        run: dotnet nuget push */bin/Release/*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
+      - name: 2.Install Dependencies
+        run: dotnet restore 
+      - name: 3.Build
+        run: dotnet build -c Release SDKs.DjiImage/SDKs.DjiImage.csproj
+      - name: 4.Create Nuget Package
+        run: dotnet pack --no-build -c Release SDKs.DjiImage/SDKs.DjiImage.csproj
+      - name: 5.Publish the package to nuget.org
+        run: dotnet nuget push SDKs.DjiImage/bin/Release/*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json -NoSymbol
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_TOKEN }}
