@@ -10,8 +10,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Dji TSDK for .NET4.8")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("745424554@qq.com")]
-[assembly: AssemblyProduct("SDKs.DjiImage.Net48")]
-[assembly: AssemblyCopyright("Copyright ©jazous  2022")]
+[assembly: AssemblyProduct("SDKs.DjiImage.Net48.dll")]
+[assembly: AssemblyCopyright("Copyright ©jazous 2022")]
 [assembly: AssemblyTrademark("@jazous")]
 [assembly: AssemblyCulture("")]
 

@@ -18,7 +18,7 @@
 	<PackageReadmeFile>README.md</PackageReadmeFile>
 	<NeutralLanguage>zh</NeutralLanguage>
 	<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-	<Copyright>745424554@qq.com</Copyright>
+	<Copyright>Copyright ©jazous 2022</Copyright>
 	<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	<PlatformTarget>AnyCPU</PlatformTarget>
 	<ErrorReport>none</ErrorReport>
@@ -28,6 +28,8 @@
 	<DocumentationFile>obj\Release\net6.0\SDKs.DjiImage.xml</DocumentationFile>
 	<PackageReleaseNotes>1、修复浮点类型温度精度问题，只保留1位小数
 2、扩展 RJPEG 类的相关方法</PackageReleaseNotes>
+	<Company>745424554@qq.com</Company>
+	<Product>$(AssemblyName).dll</Product>
   </PropertyGroup>
 
   <ItemGroup>
