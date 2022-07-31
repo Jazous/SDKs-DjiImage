@@ -15,26 +15,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # 1.Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - name: 1/5 Checks-out SDKs.DjiImage
       - uses: actions/checkout@v3
       # 2.build
-      - name: 2/5 Install dependencies
+      - name: 1/4 Setup .NET
       - uses: actions/setup-dotnet@v2
         with:
           dotnet-version: 6.0.x
           source-url: https://nuget.pkg.github.com/willzou/index.json
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        run: dotnet restore SDKs.DjiImage
-      - name: 3/5 Build SDKs.DjiImage
+     # 3.build
+      - name: 2/4 Build SDKs.DjiImage
         run: dotnet build --configuration Release SDKs.DjiImage
-      - name: 4/5 Create package
+      - name: 3/4 Create package
         run: dotnet pack --configuration Release SDKs.DjiImage
-      # 3.Authenticates packages to push to nuget.org.
-      - name: 5/5 Publish the package to nuget.org
+      # 4.Authenticates packages to push to nuget.org.
       - uses: actions/setup-dotnet@v2
         with:
           dotnet-version: 6.0.x
+      - name: 1/4 Publish the package to nuget.org
         run: dotnet nuget push */bin/Release/*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_TOKEN }}
