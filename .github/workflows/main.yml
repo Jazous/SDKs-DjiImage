@@ -40,4 +40,4 @@ jobs:
         run: dotnet pack SDKs.DjiImage --configuration Release --no-build
       # 4.Authenticates packages to push to nuget.org.
       - name: 4.Publish the package to nuget.org
-        run: dotnet nuget push */bin/Release/*.nupkg -k ${{secrets.NUGET_TOKEN}} -s https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push */bin/Release/*.nupkg -k ${{secrets.NUGET_TOKEN}} -s https://api.nuget.org/v3/index.json --skip-duplicate --no-symbols 
