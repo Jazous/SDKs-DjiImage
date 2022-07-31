@@ -27,7 +27,7 @@ jobs:
       # 1.Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
       # 2.Authenticates packages to push to GPR
-      - name: 1、Setup .NET Standard SDK
+      - name: 1.Setup .NET Standard SDK
         uses: actions/setup-dotnet@v2
         with:
           dotnet-version: 6.0.x
@@ -35,17 +35,20 @@ jobs:
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       # 3.build
-      - name: 2、Install dependencies
+      - name: 2.Install dependencies
         run: dotnet restore SDKs.DjiImage
-      - name: 3、Build SDKs.DjiImage
+      - name: 3.Build SDKs.DjiImage
         run: dotnet build --configuration Release SDKs.DjiImage/SDKs.DjiImage.csproj
-      - name: 4、Create nuget package
+      - name: 4.Create nuget package
         run: dotnet pack --configuration Release SDKs.DjiImage/SDKs.DjiImage.csproj
       # 4.Authenticates packages to push to nuget.org.
       - uses: actions/setup-dotnet@v2
         with:
           dotnet-version: 6.0.x
-      - name: 5、Publish the package to nuget.org
-        run: dotnet nuget push */bin/Release/*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
+          source-url: https://nuget.pkg.github.com/willzou/index.json
         env:
-          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_TOKEN }}
+          NUGET_AUTH_TOKEN: ${{secrets.NUGET_TOKEN}}
+      - name: 5.Publish the package to nuget.org
+        run: dotnet nuget push SDKs.DjiImage/bin/Release/*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{github.token}}
