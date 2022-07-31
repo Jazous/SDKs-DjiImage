@@ -33,7 +33,7 @@ jobs:
           dotnet-version: 6.0.x
           source-url: https://nuget.pkg.github.com/willzou/index.json
         env:
-          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          NUGET_AUTH_TOKEN: ${{secrets.PAT_TOKEN}}
       # 3.build
       - name: 2.Install dependencies
         run: dotnet restore SDKs.DjiImage
@@ -47,8 +47,8 @@ jobs:
           dotnet-version: 6.0.x
           source-url: https://nuget.pkg.github.com/willzou/index.json
         env:
-          NUGET_AUTH_TOKEN: ${{secrets.NUGET_TOKEN}}
+          NUGET_AUTH_TOKEN: ${{secrets.PAT_TOKEN}}
       - name: 5.Publish the package to nuget.org
         run: dotnet nuget push SDKs.DjiImage/bin/Release/*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
         env:
-          NUGET_AUTH_TOKEN: ${{github.token}}
+          NUGET_AUTH_TOKEN: ${{secrets.NUGET_TOKEN}}
