@@ -36,7 +36,7 @@ jobs:
           NUGET_AUTH_TOKEN: ${{secrets.PAT_TOKEN}}
       # 3.build
       - name: 2.Install dependencies
-        run: dotnet restore SDKs.DjiImage
+        run: dotnet restore SDKs.DjiImage/SDKs.DjiImage.csproj
       - name: 3.Build SDKs.DjiImage
         run: dotnet build --configuration Release SDKs.DjiImage/SDKs.DjiImage.csproj
       - name: 4.Create nuget package
