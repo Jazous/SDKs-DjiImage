@@ -5,7 +5,7 @@
     <RootNamespace>SDKs.DjiImage</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <SignAssembly>False</SignAssembly>
+    <SignAssembly>True</SignAssembly>
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	<Version>1.3.1</Version>
 	<Authors>jazous</Authors>
@@ -24,11 +24,15 @@
 	<ErrorReport>none</ErrorReport>
 	<PackageTags>dji,thermal,r-jpeg</PackageTags>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
-	<AssemblyOriginatorKeyFile>SDKs.DjiImage.snk</AssemblyOriginatorKeyFile>
+	<AssemblyOriginatorKeyFile>..\SDKs.snk</AssemblyOriginatorKeyFile>
 	<DocumentationFile>obj\Release\net6.0\SDKs.DjiImage.xml</DocumentationFile>
 	<PackageReleaseNotes>1、修复浮点类型温度精度问题，只保留1位小数
 2、扩展 RJPEG 类的相关方法</PackageReleaseNotes>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="global.json" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Include="..\README.md">

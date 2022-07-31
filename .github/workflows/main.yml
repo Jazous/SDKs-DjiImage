@@ -33,8 +33,10 @@ jobs:
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       # 3.build
+      - name: Install dependencies
+        run: dotnet restore SDKs.DjiImage
       - name: Build SDKs.DjiImage
-        run: dotnet build SDKs.DjiImage
+        run: dotnet build --configuration Release SDKs.DjiImage
       - name: Create the package
         run: dotnet pack --configuration Release SDKs.DjiImage
       - name: Publish the package to GPR

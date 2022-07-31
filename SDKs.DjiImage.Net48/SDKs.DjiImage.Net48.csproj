@@ -35,11 +35,10 @@
     <DocumentationFile>bin\Release\SDKs.DjiImage.Net48.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>
-    </AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>SDKs.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -64,6 +63,9 @@
     <Compile Include="Thermals\RJPEG.cs" />
     <Compile Include="Thermals\_tsdk.cs" />
     <Compile Include="VJPEG.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SDKs.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
