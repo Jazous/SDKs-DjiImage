@@ -21,19 +21,16 @@
         /// 红外测温参数
         /// </summary>
         public MeasureParam Params { get; private set; }
-
         AreaTemperature _areaTemp;
         public float MaxTemp => _areaTemp.MaxTemp;
         public float MinTemp => _areaTemp.MinTemp;
         public float AvgTemp => _areaTemp.AvgTemp;
         public System.Collections.Generic.List<Location> MinTempLocs => _areaTemp.MinTempLocs;
         public System.Collections.Generic.List<Location> MaxTempLocs => _areaTemp.MaxTempLocs;
-
         /// <summary>
         /// 文件大小
         /// </summary>
         public int Size { get; private set; }
-
         /// <summary>
         /// XMP Meta drone-dji 信息
         /// </summary>
@@ -42,18 +39,18 @@
         private RJPEG()
         {
         }
-
         /// <summary>
         /// 从指定文件创建大疆热红外 R-JPEG 图片
         /// </summary>
-        /// <param name="filename">JPEG 文件路径</param>
+        /// <param name="path">JPEG 文件路径</param>
         /// <returns></returns>
-        public static RJPEG FromFile(string filename)
+        /// <exception cref="System.ArgumentNullException"></exception>
+        /// <exception cref="System.IO.FileNotFoundException"></exception>
+        /// <exception cref="System.UnauthorizedAccessException"></exception>
+        /// <exception cref="System.DllNotFoundException"></exception>
+        public static RJPEG FromFile(string path)
         {
-            if (filename == null)
-                throw new System.ArgumentNullException(nameof(filename));
-
-            using (var stream = System.IO.File.OpenRead(filename))
+            using (var stream = System.IO.File.OpenRead(path))
                 return FromStream(stream);
         }
         /// <summary>
@@ -61,6 +58,9 @@
         /// </summary>
         /// <param name="stream"></param>
         /// <returns></returns>
+        /// <exception cref="System.ArgumentNullException"></exception>
+        /// <exception cref="System.ArgumentException"></exception>
+        /// <exception cref="System.DllNotFoundException"></exception>
         public static RJPEG FromStream(System.IO.Stream stream)
         {
             if (stream == null || stream == System.IO.Stream.Null)
@@ -86,6 +86,9 @@
         /// </summary>
         /// <param name="bytes">文件字节数组</param>
         /// <returns></returns>
+        /// <exception cref="System.ArgumentNullException"></exception>
+        /// <exception cref="System.ArgumentException"></exception>
+        /// <exception cref="System.DllNotFoundException"></exception>
         public static RJPEG FromBytes(byte[] bytes)
         {
             if (bytes == null)
@@ -103,7 +106,58 @@
             img.Dispose();
             throw new System.ArgumentException(((dirp_ret_code_e)code).ToString(), nameof(bytes));
         }
+        /// <summary>
+        /// 尝试从指定文件流创建大疆热红外 R-JPEG 图片
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        /// <exception cref="System.DllNotFoundException"></exception>
+        /// <remarks>解析失败返回 null</remarks>
+        public static RJPEG TryParse(System.IO.Stream stream)
+        {
+            if (stream == null || stream == System.IO.Stream.Null)
+                return null;
 
+            int len = (int)stream.Length;
+            if (len == 0)
+                return null;
+
+            byte[] buffer = new byte[len];
+            stream.Read(buffer, 0, buffer.Length);
+            var img = new RJPEG();
+            int code = img.Load(buffer);
+            if (code == 0)
+            {
+                img.DroneDji = Rdf.GetDroneDji(buffer);
+                return img;
+            }
+            img.Dispose();
+            return null;
+        }
+        /// <summary>
+        /// 尝试从指定字节数组创建大疆热红外 R-JPEG 图片
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        /// <exception cref="System.DllNotFoundException"></exception>
+        /// <remarks>解析失败返回 null</remarks>
+        public static RJPEG TryParse(byte[] bytes)
+        {
+            if (bytes == null)
+                return null;
+            if (bytes.Length == 0)
+                return null;
+
+            var img = new RJPEG();
+            int code = img.Load(bytes);
+            if (code == 0)
+            {
+                img.DroneDji = Rdf.GetDroneDji(bytes);
+                return img;
+            }
+            img.Dispose();
+            return null;
+        }
         int Load(byte[] bytes)
         {
             this.Size = bytes.Length;
@@ -128,22 +182,21 @@
             }
             return code;
         }
-
         /// <summary>
         /// 获取图片指定位置的温度
         /// </summary>
-        /// <param name="p"></param>
+        /// <param name="location"></param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentOutOfRangeException"></exception>
-        public float GetTemp(Location p)
+        public float GetTemp(Location location)
         {
-            if (p.Left < 0 || p.Left > Width - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(p.Left), p.Left, $"must be positive integer and less than {Width}.");
+            if (location.Left < 0 || location.Left > Width - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(location.Left), location.Left, $"must be positive integer and less than {Width}.");
 
-            if (p.Top < 0 || p.Top > Height - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(p.Top), p.Top, $"must be positive integer and less than {Height}.");
+            if (location.Top < 0 || location.Top > Height - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(location.Top), location.Top, $"must be positive integer and less than {Height}.");
 
-            return mData[p.Left, p.Top];
+            return mData[location.Left, location.Top];
         }
         /// <summary>
         /// 获取图片指定位置的温度
@@ -162,26 +215,25 @@
 
             return mData[left, top];
         }
-
         /// <summary>
         /// 获取图像指定直线上的温度
         /// </summary>
-        /// <param name="p1"></param>
-        /// <param name="p2"></param>
+        /// <param name="location1"></param>
+        /// <param name="location2"></param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentOutOfRangeException"></exception>
-        public AreaTemperature GetTempLine(Location p1, Location p2)
+        public AreaTemperature GetTempLine(Location location1, Location location2)
         {
-            if (p1.Left < 0 || p1.Left > Width - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(p1.Left), p1.Left, $"must be positive integer and less than {Width}.");
-            if (p1.Top < 0 || p1.Top > Height - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(p1.Top), p1.Top, $"must be positive integer and less than {Height}.");
-            if (p2.Left < 0 || p2.Left > Width - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(p2.Left), p2.Left, $"must be positive integer and less than {Width}..");
-            if (p2.Top < 0 || p2.Top > Height - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(p2.Top), p2.Top, $"must be positive integer and less than {Height}.");
+            if (location1.Left < 0 || location1.Left > Width - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(location1.Left), location1.Left, $"must be positive integer and less than {Width}.");
+            if (location1.Top < 0 || location1.Top > Height - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(location1.Top), location1.Top, $"must be positive integer and less than {Height}.");
+            if (location2.Left < 0 || location2.Left > Width - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(location2.Left), location2.Left, $"must be positive integer and less than {Width}..");
+            if (location2.Top < 0 || location2.Top > Height - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(location2.Top), location2.Top, $"must be positive integer and less than {Height}.");
 
-            return GetTempLine(p1.Left, p1.Top, p2.Left, p2.Top);
+            return GetTempLine(location1.Left, location1.Top, location2.Left, location2.Top);
         }
         /// <summary>
         /// 获取图像指定直线上的温度
@@ -277,21 +329,21 @@
         /// <summary>
         /// 获取图像指定矩形范围的温度
         /// </summary>
-        /// <param name="p"></param>
+        /// <param name="location"></param>
         /// <param name="width"></param>
         /// <param name="height"></param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentOutOfRangeException"></exception>
-        public AreaTemperature GetTempRect(Location p, int width, int height)
+        public AreaTemperature GetTempRect(Location location, int width, int height)
         {
-            if (p.Left < 0 || p.Left > Width - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(p.Left), p.Left, $"must be positive integer and less than {Width}.");
+            if (location.Left < 0 || location.Left > Width - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(location.Left), location.Left, $"must be positive integer and less than {Width}.");
 
-            if (p.Top < 0 || p.Top > Height - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(p.Top), p.Top, $"must be positive integer and less than {Height}.");
+            if (location.Top < 0 || location.Top > Height - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(location.Top), location.Top, $"must be positive integer and less than {Height}.");
 
-            int right = p.Left + width;
-            int bottom = p.Top + height;
+            int right = location.Left + width;
+            int bottom = location.Top + height;
 
             if (right < 0 || right > Width - 1)
                 throw new System.ArgumentOutOfRangeException(nameof(width), width, $"p.Left + width must be positive integer and less than {Width}.");
@@ -299,7 +351,7 @@
             if (bottom < 0 || bottom > Height - 1)
                 throw new System.ArgumentOutOfRangeException(nameof(height), height, $"p.Top + height must be positive integer and less than {Height}.");
 
-            return p.Left < right ? GetTempRect(p.Left, p.Top, right, bottom) : GetTempRect(right, bottom, p.Left, p.Top);
+            return location.Left < right ? GetTempRect(location.Left, location.Top, right, bottom) : GetTempRect(right, bottom, location.Left, location.Top);
         }
         /// <summary>
         /// 获取图像指定矩形范围的温度
@@ -357,7 +409,6 @@
             result.AvgTemp = System.MathF.Round((sumTemp / sumCount), 1);
             return result;
         }
-
         float[,] Cast(byte[] rawData, int width, int height)
         {
             var result = new float[width, height];
@@ -393,7 +444,6 @@
             _areaTemp = area;
             return result;
         }
-
         static void RefProcess(ref AreaTemperature area, System.Collections.Generic.List<Location> minList, System.Collections.Generic.List<Location> maxList, float temp, int x, int y)
         {
             if (temp < area.MinTemp)
@@ -417,7 +467,6 @@
                 maxList.Add(new Location() { Left = x, Top = y });
             }
         }
-
         /// <summary>
         /// 释放资源
         /// </summary>
