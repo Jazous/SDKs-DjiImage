@@ -13,14 +13,21 @@
 	<PackageProjectUrl>https://github.com/Jazous/SDKs-DjiImage</PackageProjectUrl>
 	<PackageIconUrl></PackageIconUrl>
 	<RepositoryType>git</RepositoryType>
-	<Description>SDKs.DjiImage</Description>
+	<Description>Dji TSDK for .NET Support Windows and Linux</Description>
 	<LangVersion>latest</LangVersion>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
 	<NeutralLanguage>zh</NeutralLanguage>
-	<PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+	<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 	<Copyright>745424554@qq.com</Copyright>
-	<GenerateDocumentationFile>False</GenerateDocumentationFile>
+	<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	<PlatformTarget>AnyCPU</PlatformTarget>
+	<ErrorReport>none</ErrorReport>
+	<PackageTags>dji,thermal,r-jpeg</PackageTags>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<AssemblyOriginatorKeyFile>SDKs.DjiImage.snk</AssemblyOriginatorKeyFile>
+	<DocumentationFile>obj\Release\net6.0\SDKs.DjiImage.xml</DocumentationFile>
+	<PackageReleaseNotes>1、修复浮点类型温度精度问题，只保留1位小数
+2、扩展 RJPEG 类的相关方法</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

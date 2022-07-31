@@ -32,6 +32,14 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\Release\SDKs.DjiImage.Net48.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -52,7 +60,6 @@
     <Compile Include="Thermals\AreaTemperature.cs" />
     <Compile Include="Thermals\dirp_resolution_t.cs" />
     <Compile Include="Thermals\dirp_ret_code_e.cs" />
-    <Compile Include="Thermals\dirp_rjpeg_version_t.cs" />
     <Compile Include="Thermals\MeasureParam.cs" />
     <Compile Include="Thermals\RJPEG.cs" />
     <Compile Include="Thermals\_tsdk.cs" />

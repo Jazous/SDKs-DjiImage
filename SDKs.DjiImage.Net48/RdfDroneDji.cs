@@ -1,6 +1,6 @@
 ﻿namespace SDKs.DjiImage
 {
-    // <summary>
+    /// <summary>
     /// 大疆 XMP Meta drone-dji 信息
     /// </summary>
     /// <remarks>经纬度坐标为 WGS-84 标准</remarks>

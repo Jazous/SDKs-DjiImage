@@ -22,10 +22,25 @@
         /// </summary>
         public MeasureParam Params { get; private set; }
         AreaTemperature _areaTemp;
+        /// <summary>
+        /// 图片最高温度
+        /// </summary>
         public float MaxTemp => _areaTemp.MaxTemp;
+        /// <summary>
+        /// 图片最低温度
+        /// </summary>
         public float MinTemp => _areaTemp.MinTemp;
+        /// <summary>
+        /// 图片平均温度
+        /// </summary>
         public float AvgTemp => _areaTemp.AvgTemp;
+        /// <summary>
+        /// 最高温度位置列表
+        /// </summary>
         public System.Collections.Generic.List<Location> MinTempLocs => _areaTemp.MinTempLocs;
+        /// <summary>
+        /// 最低温度位置列表
+        /// </summary>
         public System.Collections.Generic.List<Location> MaxTempLocs => _areaTemp.MaxTempLocs;
         /// <summary>
         /// 文件大小

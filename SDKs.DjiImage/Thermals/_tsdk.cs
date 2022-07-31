@@ -12,10 +12,6 @@
         {
             return isLinux ? _skdlinux.dirp_create_from_rjpeg(data, size, ref ph) : _sdkwin.dirp_create_from_rjpeg(data, size, ref ph);
         }
-        public static int dirp_get_rjpeg_version(System.IntPtr h, ref dirp_rjpeg_version_t version)
-        {
-            return isLinux ? _skdlinux.dirp_get_rjpeg_version(h, ref version) : _sdkwin.dirp_get_rjpeg_version(h, ref version);
-        }
         public static int dirp_get_rjpeg_resolution(System.IntPtr h, ref dirp_resolution_t resolution)
         {
             return isLinux ? _skdlinux.dirp_get_rjpeg_resolution(h, ref resolution) : _sdkwin.dirp_get_rjpeg_resolution(h, ref resolution);

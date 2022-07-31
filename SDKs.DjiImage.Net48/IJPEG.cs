@@ -1,5 +1,8 @@
 ﻿namespace SDKs.DjiImage
 {
+    /// <summary>
+    /// 大疆图片接口
+    /// </summary>
     public interface IJPEG : System.IDisposable
     {
         /// <summary>

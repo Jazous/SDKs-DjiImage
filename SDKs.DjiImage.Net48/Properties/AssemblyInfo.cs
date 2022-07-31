@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Resources;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -6,12 +7,12 @@ using System.Runtime.InteropServices;
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
 [assembly: AssemblyTitle("SDKs.DjiImage.Net48")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Dji TSDK for .NET4.8")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("745424554@qq.com")]
 [assembly: AssemblyProduct("SDKs.DjiImage.Net48")]
 [assembly: AssemblyCopyright("Copyright ©jazous  2022")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyTrademark("@jazous")]
 [assembly: AssemblyCulture("")]
 
 // 将 ComVisible 设置为 false 会使此程序集中的类型
@@ -34,3 +35,4 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.3.1.0")]
 [assembly: AssemblyFileVersion("1.3.1.0")]
+[assembly: NeutralResourcesLanguage("zh")]

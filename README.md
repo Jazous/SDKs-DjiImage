@@ -36,6 +36,6 @@ using (var img = RJPEG.FromBytes(data))
 Console.ReadKey();
 ```
 
-#### License 说明
+#### License
 
 https://github.com/Jazous/SDKs-DjiImage/blob/main/LICENSE.txt
