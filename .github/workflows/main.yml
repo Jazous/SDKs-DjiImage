@@ -48,17 +48,7 @@ jobs:
         #  source-url: https://nuget.pkg.github.com/jazous/index.json
         #env:
         #  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Get secrets.NUGET_TOKEN
+        run: echo "NUGET_AUTH_TOKEN = ${{ secrets.NUGET_TOKEN }}"
       - name: 4.Publish the package to nuget.org
-        run: echo "NUGET_AUTH_TOKEN=${{env.NUGET_AUTH_TOKEN}}"
-        env:
-          NUGET_AUTH_TOKEN: ${{secrets.NUGET_TOKEN}}
-      - name: test2
-        run: echo "NUGET_AUTH_TOKEN = $NUGET_AUTH_TOKEN"
-        env:
-          NUGET_AUTH_TOKEN: ${{secrets.NUGET_TOKEN}}
-      - name: test3
-        run: echo "NUGET_AUTH_TOKEN = ${{secrets.NUGET_TOKEN}}"
-      - name: ccc
-        run: dotnet nuget push SDKs.DjiImage/bin/Release/*.nupkg --api-key "$NUGET_AUTH_TOKEN" --source https://api.nuget.org/v3/index.json --skip-duplicate
-        env:
-          NUGET_AUTH_TOKEN: ${{secrets.NUGET_TOKEN}}
+        run: dotnet nuget push SDKs.DjiImage/bin/Release/*.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source https://api.nuget.org/v3/index.json --skip-duplicate
