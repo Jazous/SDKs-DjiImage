@@ -13,7 +13,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-        NUGET_AUTH_TOKEN: ${{secrets.NUGET_TOKEN}}
+        NGTOKEN: ${{secrets.NUGET_TOKEN}}
     steps:
       - uses: actions/checkout@v3
       - name: 1.Setup .NET Standard SDK
@@ -25,6 +25,6 @@ jobs:
       - name: 3.Create nuget package
         run: dotnet pack SDKs.DjiImage/SDKs.DjiImage.csproj --configuration Release --no-build
       - name: Get secrets.NUGET_TOKEN
-        run: echo "NUGET_TOKEN = $NUGET_AUTH_TOKEN"
+        run: echo NUGET_AUTH = $NGTOKEN
       - name: 4.Publish the package to nuget.org
-        run: dotnet nuget push SDKs.DjiImage/bin/Release/*.nupkg --api-key $NUGET_AUTH_TOKEN --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push SDKs.DjiImage/bin/Release/*.nupkg --api-key "${{secrets.NUGET_TOKEN}}" --source https://api.nuget.org/v3/index.json --skip-duplicate
