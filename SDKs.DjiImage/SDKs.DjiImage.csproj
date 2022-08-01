@@ -33,13 +33,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="global.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="..\README.md">
       <Pack>True</Pack>
-      <PackagePath>https://www.nuget.org/packages/SDKs.DjiImage/</PackagePath>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 </Project>
