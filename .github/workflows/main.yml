@@ -49,6 +49,6 @@ jobs:
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: 5.Publish the package to nuget.org
-        run: dotnet nuget push SDKs.DjiImage/bin/Release/*.nupkg --api-key $NUGET_AUTH_TOKEN --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push SDKs.DjiImage/bin/Release/*.nupkg --api-key "$NUGET_AUTH_TOKEN --source nuget.org --skip-duplicate
         env:
           NUGET_AUTH_TOKEN: ${{secrets.NUGET_TOKEN}}

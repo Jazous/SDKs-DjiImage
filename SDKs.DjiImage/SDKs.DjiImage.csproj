@@ -39,7 +39,7 @@
   <ItemGroup>
     <None Include="..\README.md">
       <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
+      <PackagePath>https://www.nuget.org/packages/SDKs.DjiImage/</PackagePath>
     </None>
   </ItemGroup>
 </Project>
