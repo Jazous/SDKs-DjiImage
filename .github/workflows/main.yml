@@ -23,4 +23,4 @@ jobs:
       - name: 3.Create nuget package
         run: dotnet pack SDKs.DjiImage/SDKs.DjiImage.csproj --configuration Release --no-build
       - name: 4.Publish the package to nuget.org
-        run: dotnet nuget push SDKs.DjiImage/bin/Release/*.nupkg --api-key $NUGET_AUTH_TOKEN --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push SDKs.DjiImage/bin/Release/*.nupkg --api-key ${{secrets.NUGETKEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
