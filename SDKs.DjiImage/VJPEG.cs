@@ -25,27 +25,24 @@
         /// <exception cref="System.UnauthorizedAccessException"></exception>
         public static VJPEG FromFile(string path)
         {
-            if (path == null)
-                throw new System.ArgumentNullException(nameof(path));
-
-            using (var stream = System.IO.File.OpenRead(path))
-                return FromStream(stream);
+            return FromStream(System.IO.File.OpenRead(path), false);
         }
         /// <summary>
         /// 从指定文件流创建大疆 JPEG 图片
         /// </summary>
         /// <param name="stream">图片字节流</param>
+        /// <param name="leaveOpen">使用完后是否关闭流</param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentNullException"></exception>
         /// <exception cref="System.ArgumentException"></exception>
-        public static VJPEG FromStream(System.IO.Stream stream)
+        public static VJPEG FromStream(System.IO.Stream stream, bool leaveOpen = false)
         {
             if (stream == null || stream == System.IO.Stream.Null)
                 throw new System.ArgumentNullException(nameof(stream));
             if (stream.Length == 0)
                 throw new System.ArgumentException("stream is invalid r-jpeg data.");
 
-            return new VJPEG() { DroneDji = Rdf.GetDroneDji(stream) };
+            return new VJPEG() { DroneDji = Rdf.GetDroneDji(stream, leaveOpen) };
         }
 
         /// <summary>

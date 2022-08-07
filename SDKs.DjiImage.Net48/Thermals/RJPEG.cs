@@ -65,18 +65,18 @@
         /// <exception cref="System.DllNotFoundException"></exception>
         public static RJPEG FromFile(string path)
         {
-            using (var stream = System.IO.File.OpenRead(path))
-                return FromStream(stream);
+            return FromStream(System.IO.File.OpenRead(path), false);
         }
         /// <summary>
         /// 从指定文件流创建大疆热红外 R-JPEG 图片
         /// </summary>
-        /// <param name="stream"></param>
+        /// <param name="stream">图片字节流</param>
+        /// <param name="leaveOpen">使用完后是否关闭流</param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentNullException"></exception>
         /// <exception cref="System.ArgumentException"></exception>
         /// <exception cref="System.DllNotFoundException"></exception>
-        public static RJPEG FromStream(System.IO.Stream stream)
+        public static RJPEG FromStream(System.IO.Stream stream, bool leaveOpen = false)
         {
             if (stream == null || stream == System.IO.Stream.Null)
                 throw new System.ArgumentNullException(nameof(stream));
@@ -86,6 +86,8 @@
             int len = (int)stream.Length;
             byte[] buffer = new byte[len];
             stream.Read(buffer, 0, buffer.Length);
+            if (!leaveOpen)
+                stream.Close();
             var img = new RJPEG();
             int code = img.Load(buffer);
             if (code == 0)
@@ -124,11 +126,12 @@
         /// <summary>
         /// 尝试从指定文件流创建大疆热红外 R-JPEG 图片
         /// </summary>
-        /// <param name="stream"></param>
+        /// <param name="stream">图片字节流</param>
+        /// <param name="leaveOpen">使用完后是否关闭流</param>
         /// <returns></returns>
         /// <exception cref="System.DllNotFoundException"></exception>
         /// <remarks>解析失败返回 null</remarks>
-        public static RJPEG TryParse(System.IO.Stream stream)
+        public static RJPEG TryParse(System.IO.Stream stream, bool leaveOpen = false)
         {
             if (stream == null || stream == System.IO.Stream.Null)
                 return null;
@@ -139,6 +142,9 @@
 
             byte[] buffer = new byte[len];
             stream.Read(buffer, 0, buffer.Length);
+            if (!leaveOpen)
+                stream.Close();
+
             var img = new RJPEG();
             int code = img.Load(buffer);
             if (code == 0)
@@ -179,7 +185,7 @@
             int code = _tsdk.dirp_create_from_rjpeg(bytes, Size, ref _ph);
             if (code == 0)
             {
-                dirp_resolution_t res = new dirp_resolution_t();
+                var res = new dirp_resolution_t();
                 _tsdk.dirp_get_rjpeg_resolution(_ph, ref res);
                 this.Width = res.width;
                 this.Height = res.height;
@@ -206,10 +212,10 @@
         public float GetTemp(Location location)
         {
             if (location.Left < 0 || location.Left > Width - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(location.Left), location.Left, $"must be positive integer and less than {Width}.");
+                throw new System.ArgumentOutOfRangeException(nameof(location), location.Left, $"location.Left must be positive integer and less than {Width}.");
 
             if (location.Top < 0 || location.Top > Height - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(location.Top), location.Top, $"must be positive integer and less than {Height}.");
+                throw new System.ArgumentOutOfRangeException(nameof(location), location.Top, $"location.Top must be positive integer and less than {Height}.");
 
             return mData[location.Left, location.Top];
         }
@@ -240,13 +246,13 @@
         public AreaTemperature GetTempLine(Location location1, Location location2)
         {
             if (location1.Left < 0 || location1.Left > Width - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(location1.Left), location1.Left, $"must be positive integer and less than {Width}.");
+                throw new System.ArgumentOutOfRangeException(nameof(location1), location1.Left, $"location1.Left must be positive integer and less than {Width}.");
             if (location1.Top < 0 || location1.Top > Height - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(location1.Top), location1.Top, $"must be positive integer and less than {Height}.");
+                throw new System.ArgumentOutOfRangeException(nameof(location1), location1.Top, $"location1.Top must be positive integer and less than {Height}.");
             if (location2.Left < 0 || location2.Left > Width - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(location2.Left), location2.Left, $"must be positive integer and less than {Width}..");
+                throw new System.ArgumentOutOfRangeException(nameof(location2), location2.Left, $"location2.Left must be positive integer and less than {Width}..");
             if (location2.Top < 0 || location2.Top > Height - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(location2.Top), location2.Top, $"must be positive integer and less than {Height}.");
+                throw new System.ArgumentOutOfRangeException(nameof(location2), location2.Top, $"location2.Top must be positive integer and less than {Height}.");
 
             return GetTempLine(location1.Left, location1.Top, location2.Left, location2.Top);
         }
@@ -274,7 +280,7 @@
             var minList = new System.Collections.Generic.List<Location>();
             var maxList = new System.Collections.Generic.List<Location>();
 
-            Location loc = new Location(left1, top1);
+            var loc = new Location(left1, top1);
             if (left1 > left2)
             {
                 left1 = left2;
@@ -352,19 +358,19 @@
         public AreaTemperature GetTempRect(Location location, int width, int height)
         {
             if (location.Left < 0 || location.Left > Width - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(location.Left), location.Left, $"must be positive integer and less than {Width}.");
+                throw new System.ArgumentOutOfRangeException(nameof(location), location.Left, $"location.Left must be positive integer and less than {Width}.");
 
             if (location.Top < 0 || location.Top > Height - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(location.Top), location.Top, $"must be positive integer and less than {Height}.");
+                throw new System.ArgumentOutOfRangeException(nameof(location), location.Top, $"location.Topmust be positive integer and less than {Height}.");
 
             int right = location.Left + width;
             int bottom = location.Top + height;
 
             if (right < 0 || right > Width - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(width), width, $"p.Left + width must be positive integer and less than {Width}.");
+                throw new System.ArgumentOutOfRangeException(nameof(width), width, $"location.Left + width must be positive integer and less than {Width}.");
 
             if (bottom < 0 || bottom > Height - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(height), height, $"p.Top + height must be positive integer and less than {Height}.");
+                throw new System.ArgumentOutOfRangeException(nameof(height), height, $"location.Top + height must be positive integer and less than {Height}.");
 
             return location.Left < right ? GetTempRect(location.Left, location.Top, right, bottom) : GetTempRect(right, bottom, location.Left, location.Top);
         }
@@ -397,10 +403,12 @@
                 throw new System.ArgumentOutOfRangeException(nameof(bottom), right, "bottom must greater than top.");
 
             float temp = mData[left, top];
-            var result = new AreaTemperature();
-            result.MinTemp = temp;
-            result.MaxTemp = temp;
-            result.AvgTemp = temp;
+            var result = new AreaTemperature
+            {
+                MaxTemp = temp,
+                MinTemp = temp,
+                AvgTemp = temp
+            };
 
             var minList = new System.Collections.Generic.List<Location>();
             var maxList = new System.Collections.Generic.List<Location>();
@@ -446,9 +454,11 @@
         float[,] Cast(byte[] rawData, int width, int height)
         {
             var result = new float[width, height];
-            var area = new AreaTemperature();
-            area.MinTemp = short.MaxValue;
-            area.MaxTemp = short.MinValue;
+            var area = new AreaTemperature
+            {
+                MinTemp = short.MaxValue,
+                MaxTemp = short.MinValue
+            };
             var minList = new System.Collections.Generic.List<Location>();
             var maxList = new System.Collections.Generic.List<Location>();
 

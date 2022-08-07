@@ -76,11 +76,13 @@ namespace SDKs.DjiImage
 
             return GetStr(regex, encoding, stream, nextIndex, nextcount);
         }
-        internal static RdfDroneDji GetDroneDji(System.IO.Stream stream)
+        internal static RdfDroneDji GetDroneDji(System.IO.Stream stream, bool leaveOepn)
         {
             var encoding = System.Text.Encoding.ASCII;
             int len = (int)stream.Length;
             string str = GetStr(new System.Text.RegularExpressions.Regex(rdf_Description, RegexOptions.Multiline), encoding, stream, 0, len > 0x2800 ? 0x2800 : len);
+            if (!leaveOepn)
+                stream.Close();
             return string.IsNullOrEmpty(str) ? RdfDroneDji.Empty : GetDroneDji(str);
         }
         internal static RdfDroneDji GetDroneDji(byte[] bytes)
