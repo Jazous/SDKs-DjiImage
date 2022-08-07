@@ -35,11 +35,11 @@
         /// </summary>
         public float AvgTemp => _areaTemp.AvgTemp;
         /// <summary>
-        /// 最高温度位置列表
+        /// 最低温度位置列表
         /// </summary>
         public System.Collections.Generic.List<Location> MinTempLocs => _areaTemp.MinTempLocs;
         /// <summary>
-        /// 最低温度位置列表
+        /// 最高温度位置列表
         /// </summary>
         public System.Collections.Generic.List<Location> MaxTempLocs => _areaTemp.MaxTempLocs;
         /// <summary>
@@ -422,6 +422,25 @@
             result.MinTempLocs = minList;
             result.MaxTempLocs = maxList;
             result.AvgTemp = System.MathF.Round((sumTemp / sumCount), 1);
+            return result;
+        }
+        /// <summary>
+        /// 获取指定温度范围的位置温度清单
+        /// </summary>
+        /// <param name="predicate">温度过滤条件</param>
+        /// <returns></returns>
+        public System.Collections.Generic.List<RTEntry> Get(System.Predicate<float> predicate)
+        {
+            var result = new System.Collections.Generic.List<RTEntry>();
+            for (int j = 0; j < this.Height; j++)
+            {
+                for (int i = 0; i < this.Width; i++)
+                {
+                    var temp = mData[i, j];
+                    if (predicate.Invoke(temp))
+                        result.Add(new RTEntry() { Left = i, Top = j, Temp = temp });
+                }
+            }
             return result;
         }
         float[,] Cast(byte[] rawData, int width, int height)

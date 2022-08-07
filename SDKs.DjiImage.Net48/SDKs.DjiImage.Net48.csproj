@@ -56,6 +56,7 @@
     <Compile Include="Thermals\dirp_ret_code_e.cs" />
     <Compile Include="Thermals\MeasureParam.cs" />
     <Compile Include="Thermals\RJPEG.cs" />
+    <Compile Include="Thermals\RTEntry.cs" />
     <Compile Include="Thermals\_tsdk.cs" />
     <Compile Include="VJPEG.cs" />
   </ItemGroup>
