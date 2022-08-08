@@ -207,18 +207,18 @@
         /// <summary>
         /// 获取图片指定位置的温度
         /// </summary>
-        /// <param name="location"></param>
+        /// <param name="loc"></param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentOutOfRangeException"></exception>
-        public float GetTemp(Location location)
+        public float GetTemp(Location loc)
         {
-            if (location.Left < 0 || location.Left > Width - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(location), location.Left, $"location.Left must be positive integer and less than {Width}.");
+            if (loc.Left < 0 || loc.Left > Width - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(loc), loc.Left, $"location.Left must be positive integer and less than {Width}.");
 
-            if (location.Top < 0 || location.Top > Height - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(location), location.Top, $"location.Top must be positive integer and less than {Height}.");
+            if (loc.Top < 0 || loc.Top > Height - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(loc), loc.Top, $"location.Top must be positive integer and less than {Height}.");
 
-            return mData[location.Left, location.Top];
+            return mData[loc.Left, loc.Top];
         }
         /// <summary>
         /// 获取图片指定位置的温度
@@ -240,22 +240,22 @@
         /// <summary>
         /// 获取图像指定直线上的温度
         /// </summary>
-        /// <param name="location1"></param>
-        /// <param name="location2"></param>
+        /// <param name="loc1"></param>
+        /// <param name="loc2"></param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentOutOfRangeException"></exception>
-        public AreaTemperature GetTempLine(Location location1, Location location2)
+        public AreaTemperature GetTempLine(Location loc1, Location loc2)
         {
-            if (location1.Left < 0 || location1.Left > Width - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(location1), location1.Left, $"location1.Left must be positive integer and less than {Width}.");
-            if (location1.Top < 0 || location1.Top > Height - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(location1), location1.Top, $"location1.Top must be positive integer and less than {Height}.");
-            if (location2.Left < 0 || location2.Left > Width - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(location2), location2.Left, $"location2.Left must be positive integer and less than {Width}..");
-            if (location2.Top < 0 || location2.Top > Height - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(location2), location2.Top, $"location2.Top must be positive integer and less than {Height}.");
+            if (loc1.Left < 0 || loc1.Left > Width - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(loc1), loc1.Left, $"location1.Left must be positive integer and less than {Width}.");
+            if (loc1.Top < 0 || loc1.Top > Height - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(loc1), loc1.Top, $"location1.Top must be positive integer and less than {Height}.");
+            if (loc2.Left < 0 || loc2.Left > Width - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(loc2), loc2.Left, $"location2.Left must be positive integer and less than {Width}..");
+            if (loc2.Top < 0 || loc2.Top > Height - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(loc2), loc2.Top, $"location2.Top must be positive integer and less than {Height}.");
 
-            return GetTempLine(location1.Left, location1.Top, location2.Left, location2.Top);
+            return GetTempLine(loc1.Left, loc1.Top, loc2.Left, loc2.Top);
         }
         /// <summary>
         /// 获取图像指定直线上的温度
@@ -351,21 +351,21 @@
         /// <summary>
         /// 获取图像指定矩形范围的温度
         /// </summary>
-        /// <param name="location"></param>
+        /// <param name="loc"></param>
         /// <param name="width"></param>
         /// <param name="height"></param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentOutOfRangeException"></exception>
-        public AreaTemperature GetTempRect(Location location, int width, int height)
+        public AreaTemperature GetTempRect(Location loc, int width, int height)
         {
-            if (location.Left < 0 || location.Left > Width - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(location), location.Left, $"location.Left must be positive integer and less than {Width}.");
+            if (loc.Left < 0 || loc.Left > Width - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(loc), loc.Left, $"location.Left must be positive integer and less than {Width}.");
 
-            if (location.Top < 0 || location.Top > Height - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(location), location.Top, $"location.Topmust be positive integer and less than {Height}.");
+            if (loc.Top < 0 || loc.Top > Height - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(loc), loc.Top, $"location.Topmust be positive integer and less than {Height}.");
 
-            int right = location.Left + width;
-            int bottom = location.Top + height;
+            int right = loc.Left + width;
+            int bottom = loc.Top + height;
 
             if (right < 0 || right > Width - 1)
                 throw new System.ArgumentOutOfRangeException(nameof(width), width, $"location.Left + width must be positive integer and less than {Width}.");
@@ -373,7 +373,7 @@
             if (bottom < 0 || bottom > Height - 1)
                 throw new System.ArgumentOutOfRangeException(nameof(height), height, $"location.Top + height must be positive integer and less than {Height}.");
 
-            return location.Left < right ? GetTempRect(location.Left, location.Top, right, bottom) : GetTempRect(right, bottom, location.Left, location.Top);
+            return loc.Left < right ? GetTempRect(loc.Left, loc.Top, right, bottom) : GetTempRect(right, bottom, loc.Left, loc.Top);
         }
         /// <summary>
         /// 获取图像指定矩形范围的温度
@@ -442,9 +442,12 @@
         /// <exception cref="System.ArgumentOutOfRangeException"></exception>
         public AreaTemperature GetTempCircle(int left, int top, int radius)
         {
-            if (left < 0 || left > Width - 1)
+            int ymaxIndex = Height - 1;
+            int xmaxIndex = Width - 1;
+
+            if (left < 0 || left > xmaxIndex)
                 throw new System.ArgumentOutOfRangeException(nameof(left), left, $"must be positive integer and less than {Width}.");
-            if (top < 0 || top > Height - 1)
+            if (top < 0 || top > ymaxIndex)
                 throw new System.ArgumentOutOfRangeException(nameof(top), top, $"must be positive integer and less than {Height}.");
             if (radius < 0)
                 throw new System.ArgumentOutOfRangeException(nameof(radius), radius, $"must be positive integer.");
@@ -473,29 +476,22 @@
             int ymax;
             int xL;
             int xR;
+           
             float sumTemp = 0;
             int sumCount = 0;
-            for (int i = 0; i < radius; i++)
+            for (int i = 1; i <= radius; i++)
             {
                 h = System.Convert.ToInt32(System.Math.Floor(System.Math.Sqrt(rxr - System.Math.Pow(i, 2))));
-                ymin = top - h + 1;
-                ymax = top + h + 1;
+                ymin = top - h;
+                ymax = top + h;
                 if (ymin < 0) ymin = 0;
-                if (ymax > Height) ymax = Height;
+                if (ymax > ymaxIndex) ymax = ymaxIndex;
 
-                xL = top - i;
-                xR = top + i;
-
-                for (y = ymin; y < ymax; y++)
+                xL = left - i;
+                xR = left + i;
+                if (xL > 0)
                 {
-                    if (xR < Width)
-                    {
-                        temp = mData[xR, y];
-                        sumTemp += temp;
-                        sumCount++;
-                        RefProcess(ref result, minList, maxList, temp, xR, y);
-                    }
-                    if (xL > 0)
+                    for (y = ymin; y <= ymax; y++)
                     {
                         temp = mData[xL, y];
                         sumTemp += temp;
@@ -503,6 +499,28 @@
                         RefProcess(ref result, minList, maxList, temp, xL, y);
                     }
                 }
+                if (xR < Width)
+                {
+                    for (y = ymin; y <= ymax; y++)
+                    {
+                        temp = mData[xR, y];
+                        sumTemp += temp;
+                        sumCount++;
+                        RefProcess(ref result, minList, maxList, temp, xR, y);
+                    }
+                }
+            }
+
+            ymin = top - radius;
+            ymax = top + radius;
+            if (ymin < 0) ymin = 0;
+            if (ymax > ymaxIndex) ymax = ymaxIndex;
+            for (y = ymin; y <= ymax; y++)
+            {
+                temp = mData[left, y];
+                sumTemp += temp;
+                sumCount++;
+                RefProcess(ref result, minList, maxList, temp, left, y);
             }
 
             result.MinTempLocs = minList;
@@ -515,7 +533,7 @@
         /// </summary>
         /// <param name="predicate">温度过滤条件</param>
         /// <returns></returns>
-        public System.Collections.Generic.List<RTEntry> Get(System.Predicate<float> predicate)
+        public System.Collections.Generic.List<RTEntry> GetEntries(System.Predicate<float> predicate)
         {
             var result = new System.Collections.Generic.List<RTEntry>();
             for (int j = 0; j < this.Height; j++)
