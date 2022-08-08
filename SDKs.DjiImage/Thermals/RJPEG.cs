@@ -433,6 +433,84 @@
             return result;
         }
         /// <summary>
+        /// 获取图像指定矩形范围的温度
+        /// </summary>
+        /// <param name="left">圆心水平方向位置</param>
+        /// <param name="top">圆心垂直方向位置</param>
+        /// <param name="radius">半径</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
+        public AreaTemperature GetTempCircle(int left, int top, int radius)
+        {
+            if (left < 0 || left > Width - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(left), left, $"must be positive integer and less than {Width}.");
+            if (top < 0 || top > Height - 1)
+                throw new System.ArgumentOutOfRangeException(nameof(top), top, $"must be positive integer and less than {Height}.");
+            if (radius < 0)
+                throw new System.ArgumentOutOfRangeException(nameof(radius), radius, $"must be positive integer.");
+
+            float temp = mData[left, top];
+            var result = new AreaTemperature
+            {
+                MinTemp = temp,
+                MaxTemp = temp,
+                AvgTemp = temp
+            };
+            var minList = new System.Collections.Generic.List<Location>();
+            var maxList = new System.Collections.Generic.List<Location>();
+            var floc = new Location(left, top);
+            if (radius == 0)
+            {
+                minList.Add(floc);
+                maxList.Add(floc);
+                return result;
+            }
+
+            int rxr = radius * radius;
+            int h;
+            int y;
+            int ymin;
+            int ymax;
+            int xL;
+            int xR;
+            float sumTemp = 0;
+            int sumCount = 0;
+            for (int i = 0; i < radius; i++)
+            {
+                h = System.Convert.ToInt32(System.Math.Floor(System.Math.Sqrt(rxr - System.Math.Pow(i, 2))));
+                ymin = top - h + 1;
+                ymax = top + h + 1;
+                if (ymin < 0) ymin = 0;
+                if (ymax > Height) ymax = Height;
+
+                xL = top - i;
+                xR = top + i;
+
+                for (y = ymin; y < ymax; y++)
+                {
+                    if (xR < Width)
+                    {
+                        temp = mData[xR, y];
+                        sumTemp += temp;
+                        sumCount++;
+                        RefProcess(ref result, minList, maxList, temp, xR, y);
+                    }
+                    if (xL > 0)
+                    {
+                        temp = mData[xL, y];
+                        sumTemp += temp;
+                        sumCount++;
+                        RefProcess(ref result, minList, maxList, temp, xL, y);
+                    }
+                }
+            }
+
+            result.MinTempLocs = minList;
+            result.MaxTempLocs = maxList;
+            result.AvgTemp = System.MathF.Round((sumTemp / sumCount), 1);
+            return result;
+        }
+        /// <summary>
         /// 获取指定温度范围的位置温度清单
         /// </summary>
         /// <param name="predicate">温度过滤条件</param>
@@ -446,7 +524,9 @@
                 {
                     var temp = mData[i, j];
                     if (predicate.Invoke(temp))
+                    {
                         result.Add(new RTEntry() { Left = i, Top = j, Temp = temp });
+                    }
                 }
             }
             return result;
