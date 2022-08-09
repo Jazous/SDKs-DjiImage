@@ -533,21 +533,19 @@
         /// </summary>
         /// <param name="predicate">温度过滤条件</param>
         /// <returns></returns>
-        public System.Collections.Generic.List<RTEntry> GetEntries(System.Predicate<float> predicate)
+        public LTCollection GetEntries(System.Predicate<float> predicate)
         {
-            var result = new System.Collections.Generic.List<RTEntry>();
+            var coll = new LTCollection();
             for (int j = 0; j < this.Height; j++)
             {
                 for (int i = 0; i < this.Width; i++)
                 {
                     var temp = mData[i, j];
                     if (predicate.Invoke(temp))
-                    {
-                        result.Add(new RTEntry() { Left = i, Top = j, Temp = temp });
-                    }
+                        coll.Add(i, j, temp);
                 }
             }
-            return result;
+            return coll;
         }
         float[,] Cast(byte[] rawData, int width, int height)
         {
