@@ -5,7 +5,7 @@ using (var img = RJPEG.FromBytes(data))
 {
     Console.WriteLine($"MinTemp={img.MinTemp} ,MaxTemp={img.MaxTemp} ,AvgTemp={img.AvgTemp}");
 
-    AreaTemperature at = img.GetTempCircle(86, 85, 85);
-    Console.WriteLine($"MinTemp={at.MinTemp} ,MaxTemp={at.MaxTemp} ,AvgTemp={at.AvgTemp}");
+    var coll = img.GetCircle(86, 85, 85);
+    Console.WriteLine($"MinTemp={coll.MinTemp} ,MaxTemp={coll.MaxTemp} ,AvgTemp={coll.AvgTemp}");
 }
 Console.ReadKey();

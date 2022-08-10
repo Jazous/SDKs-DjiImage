@@ -8,6 +8,7 @@
     {
         System.IntPtr _ph = System.IntPtr.Zero;
         float[,] mData = null;
+        LTCollection _coll = null;
 
         /// <summary>
         /// 图像宽度
@@ -21,35 +22,35 @@
         /// 红外测温参数
         /// </summary>
         public MeasureParam Params { get; private set; }
-        AreaTemperature _areaTemp;
         /// <summary>
         /// 图片最高温度
         /// </summary>
-        public float MaxTemp => _areaTemp.MaxTemp;
+        public float MaxTemp => _coll.MaxTemp;
         /// <summary>
         /// 图片最低温度
         /// </summary>
-        public float MinTemp => _areaTemp.MinTemp;
+        public float MinTemp => _coll.MinTemp;
         /// <summary>
         /// 图片平均温度
         /// </summary>
-        public float AvgTemp => _areaTemp.AvgTemp;
+        public float AvgTemp => _coll.AvgTemp;
         /// <summary>
         /// 最低温度位置列表
         /// </summary>
-        public System.Collections.Generic.List<Location> MinTempLocs => _areaTemp.MinTempLocs;
+        public System.Collections.ObjectModel.ReadOnlyCollection<Location> MinTempLocs => _coll.MinTempLocs;
         /// <summary>
         /// 最高温度位置列表
         /// </summary>
-        public System.Collections.Generic.List<Location> MaxTempLocs => _areaTemp.MaxTempLocs;
+        public System.Collections.ObjectModel.ReadOnlyCollection<Location> MaxTempLocs => _coll.MaxTempLocs;
         /// <summary>
-        /// 文件大小
+        /// 当前图片的位置温度集合
         /// </summary>
-        public int Size { get; private set; }
+        public LTCollection Entries => _coll;
         /// <summary>
         /// XMP Meta drone-dji 信息
         /// </summary>
         public RdfDroneDji DroneDji { get; private set; }
+
 
         private RJPEG()
         {
@@ -182,8 +183,7 @@
         }
         int Load(byte[] bytes)
         {
-            this.Size = bytes.Length;
-            int code = _tsdk.dirp_create_from_rjpeg(bytes, Size, ref _ph);
+            int code = _tsdk.dirp_create_from_rjpeg(bytes, bytes.Length, ref _ph);
             if (code == 0)
             {
                 var res = new dirp_resolution_t();
@@ -209,16 +209,9 @@
         /// </summary>
         /// <param name="loc"></param>
         /// <returns></returns>
-        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
         public float GetTemp(Location loc)
         {
-            if (loc.Left < 0 || loc.Left > Width - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(loc), loc.Left, $"location.Left must be positive integer and less than {Width}.");
-
-            if (loc.Top < 0 || loc.Top > Height - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(loc), loc.Top, $"location.Top must be positive integer and less than {Height}.");
-
-            return mData[loc.Left, loc.Top];
+            return GetTemp(loc.Left, loc.Top);
         }
         /// <summary>
         /// 获取图片指定位置的温度
@@ -226,109 +219,82 @@
         /// <param name="left"></param>
         /// <param name="top"></param>
         /// <returns></returns>
-        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
         public float GetTemp(int left, int top)
         {
             if (left < 0 || left > Width - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(left), left, $"must be positive integer and less than {Width}.");
+                return float.NaN;
 
             if (top < 0 || top > Height - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(top), top, $"must be positive integer and less than {Height}.");
+                return float.NaN;
 
             return mData[left, top];
         }
         /// <summary>
-        /// 获取图像指定直线上的温度
+        /// 获取图像指定直线上的位置温度集合
         /// </summary>
         /// <param name="loc1"></param>
         /// <param name="loc2"></param>
         /// <returns></returns>
-        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
-        public AreaTemperature GetTempLine(Location loc1, Location loc2)
+        public LTCollection GetLine(Location loc1, Location loc2)
         {
-            if (loc1.Left < 0 || loc1.Left > Width - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(loc1), loc1.Left, $"location1.Left must be positive integer and less than {Width}.");
-            if (loc1.Top < 0 || loc1.Top > Height - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(loc1), loc1.Top, $"location1.Top must be positive integer and less than {Height}.");
-            if (loc2.Left < 0 || loc2.Left > Width - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(loc2), loc2.Left, $"location2.Left must be positive integer and less than {Width}..");
-            if (loc2.Top < 0 || loc2.Top > Height - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(loc2), loc2.Top, $"location2.Top must be positive integer and less than {Height}.");
-
-            return GetTempLine(loc1.Left, loc1.Top, loc2.Left, loc2.Top);
+            return GetLine(loc1.Left, loc1.Top, loc2.Left, loc2.Top);
         }
         /// <summary>
-        /// 获取图像指定直线上的温度
+        /// 获取图像指定直线上的位置温度集合
         /// </summary>
         /// <param name="left1"></param>
         /// <param name="top1"></param>
         /// <param name="left2"></param>
         /// <param name="top2"></param>
         /// <returns></returns>
-        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
-        public AreaTemperature GetTempLine(int left1, int top1, int left2, int top2)
+        public LTCollection GetLine(int left1, int top1, int left2, int top2)
         {
-            if (left1 < 0 || left1 > Width - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(left1), left1, $"must be positive integer and less than {Width}.");
-            if (top1 < 0 || top1 > Height - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(top1), top1, $"must be positive integer and less than {Height}.");
-            if (left2 < 0 || left2 > Width - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(left2), left2, $"must be positive integer and less than {Width}..");
-            if (top2 < 0 || top2 > Height - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(top2), top2, $"must be positive integer and less than {Height}.");
-
-            var result = new AreaTemperature();
-            var minList = new System.Collections.Generic.List<Location>();
-            var maxList = new System.Collections.Generic.List<Location>();
-
-            var loc = new Location(left1, top1);
+            var result = new LTCollection();
+            int left, right;
             if (left1 > left2)
             {
+                left = left1;
+                right = top1;
                 left1 = left2;
                 top1 = top2;
-                left2 = loc.Left;
-                top2 = loc.Top;
+                left2 = left;
+                top2 = right;
             }
-            float temp = mData[left1, top1];
-            result.MinTemp = temp;
-            result.MaxTemp = temp;
-            result.AvgTemp = temp;
-            minList.Add(loc);
-            maxList.Add(loc);
+            int w = Width - 1;
+            int h = Height - 1;
 
             int xofffset = left2 - left1;
             int yofffset = System.Math.Abs(top2 - top1);
 
             if (xofffset == 0 && yofffset == 0)
+            {
+                if (left1 >= 0 && left1 < w && left2 >= 0 && top2 < h)
+                    result.Add(left1, top1, mData[left1, top1]);
                 return result;
+            }
 
-            float sumTemp = 0;
             int miny = System.Math.Min(top1, top2);
             int maxy = System.Math.Max(top1, top2);
             if (xofffset == 0)
             {
-                for (int i = miny; i <= maxy; i++)
-                {
-                    temp = mData[left1, i];
-                    sumTemp += temp;
-                    RefProcess(ref result, minList, maxList, temp, left1, i);
-                }
-                result.MinTempLocs = minList;
-                result.MaxTempLocs = maxList;
-                result.AvgTemp = System.MathF.Round(sumTemp / (yofffset + 1), 1);
+                if (miny < 0) miny = 0;
+                if (miny > h) miny = h;
+                if (maxy < 0) maxy = 0;
+                if (maxy > h) maxy = h;
+                if (left1 >= 0 && left1 < Width)
+                    for (int i = miny; i <= maxy; i++)
+                        result.Add(left1, i, mData[left1, i]);
                 return result;
             }
             if (yofffset == 0)
             {
-                for (int i = left1; i <= left2; i++)
-                {
-                    temp = mData[i, top1];
-                    sumTemp += temp;
-                    RefProcess(ref result, minList, maxList, temp, i, top1);
-                }
-                result.MinTempLocs = minList;
-                result.MaxTempLocs = maxList;
-                result.AvgTemp = System.MathF.Round(sumTemp / (xofffset + 1), 1);
+                if (left1 < 0) left1 = 0;
+                if (left1 > w) left1 = w;
+                if (left2 < 0) left2 = 0;
+                if (left2 > w) left2 = w;
+                if (top1 >= 0 && top1 < Height)
+                    for (int i = left1; i <= left2; i++)
+                        result.Add(i, top1, mData[i, top1]);
                 return result;
             }
             decimal k = decimal.Divide(yofffset + 1, xofffset + 1);
@@ -339,146 +305,71 @@
             for (int i = left1; i <= left2; i++)
             {
                 j = System.Convert.ToInt32(up ? (maxy - (i - left1 + 1) * k + 1) : (i - left1 + 1) * k + miny - 1);
-                temp = mData[i, j];
-                sumTemp += temp;
-                RefProcess(ref result, minList, maxList, temp, i, j);
+                if (i >= 0 && i < Width && j >= 0 && j < Height)
+                    result.Add(i, j, mData[i, j]);
             }
-            result.MinTempLocs = minList;
-            result.MaxTempLocs = maxList;
-            result.AvgTemp = System.MathF.Round(sumTemp / (xofffset + 1), 1);
             return result;
         }
         /// <summary>
-        /// 获取图像指定矩形范围的温度
+        /// 获取图像指定矩形范围的位置温度集合
         /// </summary>
         /// <param name="loc"></param>
         /// <param name="width"></param>
         /// <param name="height"></param>
         /// <returns></returns>
-        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
-        public AreaTemperature GetTempRect(Location loc, int width, int height)
+        public LTCollection GetRect(Location loc, int width, int height)
         {
-            if (loc.Left < 0 || loc.Left > Width - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(loc), loc.Left, $"location.Left must be positive integer and less than {Width}.");
-
-            if (loc.Top < 0 || loc.Top > Height - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(loc), loc.Top, $"location.Topmust be positive integer and less than {Height}.");
-
-            int right = loc.Left + width;
-            int bottom = loc.Top + height;
-
-            if (right < 0 || right > Width - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(width), width, $"location.Left + width must be positive integer and less than {Width}.");
-
-            if (bottom < 0 || bottom > Height - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(height), height, $"location.Top + height must be positive integer and less than {Height}.");
-
-            return loc.Left < right ? GetTempRect(loc.Left, loc.Top, right, bottom) : GetTempRect(right, bottom, loc.Left, loc.Top);
+            return GetRect(loc.Left, loc.Top, loc.Left + width, loc.Top + height);
         }
         /// <summary>
-        /// 获取图像指定矩形范围的温度
+        /// 获取图像指定矩形范围的位置温度集合
         /// </summary>
         /// <param name="left"></param>
         /// <param name="top"></param>
         /// <param name="right"></param>
         /// <param name="bottom"></param>
         /// <returns></returns>
-        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
-        public AreaTemperature GetTempRect(int left, int top, int right, int bottom)
+        public LTCollection GetRect(int left, int top, int right, int bottom)
         {
-            if (left < 0 || left > Width - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(left), left, $"must be positive integer and less than {Width}.");
-            if (top < 0 || top > Height - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(top), top, $"must be positive integer and less than {Height}.");
-            if (right < 0 || right > Width - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(right), right, $"must be positive integer and less than {Width}.");
-            if (bottom < 0 || bottom > Height - 1)
-                throw new System.ArgumentOutOfRangeException(nameof(bottom), bottom, $"must be positive integer and less than {Height}.");
+            int w = Width - 1;
+            int h = Height - 1;
 
-            int xoffset = right - left;
-            if (xoffset < 0)
-                throw new System.ArgumentOutOfRangeException(nameof(right), right, "right must greater than left.");
+            if (left <= 0) left = 0;
+            if (left > w) left = w;
 
-            int yoffset = bottom - top;
-            if (yoffset < 0)
-                throw new System.ArgumentOutOfRangeException(nameof(bottom), right, "bottom must greater than top.");
+            if (right <= 0) right = 0;
+            if (right > w) right = w - 1;
 
-            float temp = mData[left, top];
-            var result = new AreaTemperature
-            {
-                MinTemp = temp,
-                MaxTemp = temp,
-                AvgTemp = temp
-            };
-            var minList = new System.Collections.Generic.List<Location>();
-            var maxList = new System.Collections.Generic.List<Location>();
-            var floc = new Location(left, top);
-            minList.Add(floc);
-            maxList.Add(floc);
+            if (top <= 0) top = 0;
+            if (top > h) top = h - 1;
 
-            float sumTemp = 0;
+            if (bottom <= 0) bottom = 0;
+            if (bottom > h) bottom = h - 1;
+
+            var result = new LTCollection();
             for (int i = left; i <= right; i++)
-            {
                 for (int j = top; j <= bottom; j++)
-                {
-                    temp = mData[i, j];
-                    sumTemp += temp;
-                    RefProcess(ref result, minList, maxList, temp, i, j);
-                }
-            }
-            int sumCount = (xoffset + 1) * (yoffset + 1);
-            result.MinTempLocs = minList;
-            result.MaxTempLocs = maxList;
-            result.AvgTemp = System.MathF.Round((sumTemp / sumCount), 1);
+                    result.Add(i, j, mData[i, j]);
+
             return result;
         }
         /// <summary>
-        /// 获取图像指定矩形范围的温度
+        /// 获取图像指定矩形范围的位置温度集合
         /// </summary>
         /// <param name="left">圆心水平方向位置</param>
         /// <param name="top">圆心垂直方向位置</param>
         /// <param name="radius">半径</param>
         /// <returns></returns>
-        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
-        public AreaTemperature GetTempCircle(int left, int top, int radius)
+        public LTCollection GetCircle(int left, int top, int radius)
         {
-            int ymaxIndex = Height - 1;
-            int xmaxIndex = Width - 1;
-
-            if (left < 0 || left > xmaxIndex)
-                throw new System.ArgumentOutOfRangeException(nameof(left), left, $"must be positive integer and less than {Width}.");
-            if (top < 0 || top > ymaxIndex)
-                throw new System.ArgumentOutOfRangeException(nameof(top), top, $"must be positive integer and less than {Height}.");
-            if (radius < 0)
-                throw new System.ArgumentOutOfRangeException(nameof(radius), radius, $"must be positive integer.");
-
-            float temp = mData[left, top];
-            var result = new AreaTemperature
-            {
-                MinTemp = temp,
-                MaxTemp = temp,
-                AvgTemp = temp
-            };
-            var minList = new System.Collections.Generic.List<Location>();
-            var maxList = new System.Collections.Generic.List<Location>();
-            var floc = new Location(left, top);
-            if (radius == 0)
-            {
-                minList.Add(floc);
-                maxList.Add(floc);
+            var result = new LTCollection();
+            if (radius <= 0)
                 return result;
-            }
 
+            int ymaxIndex = Height - 1;
             int rxr = radius * radius;
-            int h;
-            int y;
-            int ymin;
-            int ymax;
-            int xL;
-            int xR;
-           
-            float sumTemp = 0;
-            int sumCount = 0;
+            int h, y, ymin, ymax, xL, xR;
+
             for (int i = 1; i <= radius; i++)
             {
                 h = System.Convert.ToInt32(System.Math.Floor(System.Math.Sqrt(rxr - System.Math.Pow(i, 2))));
@@ -489,79 +380,35 @@
 
                 xL = left - i;
                 xR = left + i;
-                if (xL > 0)
-                {
+                if (xL >= 0 && xL < Width)
                     for (y = ymin; y <= ymax; y++)
-                    {
-                        temp = mData[xL, y];
-                        sumTemp += temp;
-                        sumCount++;
-                        RefProcess(ref result, minList, maxList, temp, xL, y);
-                    }
-                }
-                if (xR < Width)
-                {
+                        result.Add(xL, y, mData[xL, y]);
+
+                if (xR >= 0 && xR < Width)
                     for (y = ymin; y <= ymax; y++)
-                    {
-                        temp = mData[xR, y];
-                        sumTemp += temp;
-                        sumCount++;
-                        RefProcess(ref result, minList, maxList, temp, xR, y);
-                    }
-                }
+                        result.Add(xR, y, mData[xR, y]);
             }
 
             ymin = top - radius;
             ymax = top + radius;
             if (ymin < 0) ymin = 0;
             if (ymax > ymaxIndex) ymax = ymaxIndex;
-            for (y = ymin; y <= ymax; y++)
-            {
-                temp = mData[left, y];
-                sumTemp += temp;
-                sumCount++;
-                RefProcess(ref result, minList, maxList, temp, left, y);
-            }
 
-            result.MinTempLocs = minList;
-            result.MaxTempLocs = maxList;
-            result.AvgTemp = System.MathF.Round((sumTemp / sumCount), 1);
+            if (left >= 0 && left < Width)
+                for (y = ymin; y <= ymax; y++)
+                    result.Add(left, y, mData[left, y]);
+
             return result;
         }
-        /// <summary>
-        /// 获取指定温度范围的位置温度清单
-        /// </summary>
-        /// <param name="predicate">温度过滤条件</param>
-        /// <returns></returns>
-        public LTCollection GetEntries(System.Predicate<float> predicate)
-        {
-            var coll = new LTCollection();
-            for (int j = 0; j < this.Height; j++)
-            {
-                for (int i = 0; i < this.Width; i++)
-                {
-                    var temp = mData[i, j];
-                    if (predicate.Invoke(temp))
-                        coll.Add(i, j, temp);
-                }
-            }
-            return coll;
-        }
+        
+
         float[,] Cast(byte[] rawData, int width, int height)
         {
             var result = new float[width, height];
-            var area = new AreaTemperature
-            {
-                MinTemp = short.MaxValue,
-                MaxTemp = short.MinValue
-            };
-            var minList = new System.Collections.Generic.List<Location>();
-            var maxList = new System.Collections.Generic.List<Location>();
-
             float temp;
-            float sumTemp = 0;
             int index = 0;
             int i, j;
+            var coll = new LTCollection(result.Length);
             byte[] arr = new byte[2];
             for (i = 0; i < height; i++)
             {
@@ -572,40 +419,11 @@
                     index += 2;
                     temp = System.MathF.Round(System.BitConverter.ToInt16(arr, 0) * 0.1f, 1);
                     result[j, i] = temp;
-
-                    sumTemp += temp;
-                    RefProcess(ref area, minList, maxList, temp, j, i);
+                    coll.Add(j, i, temp);
                 }
             }
-
-            area.MinTempLocs = minList;
-            area.MaxTempLocs = maxList;
-            area.AvgTemp = System.MathF.Round((sumTemp / result.Length), 1);
-            _areaTemp = area;
+            this._coll = coll;
             return result;
-        }
-        static void RefProcess(ref AreaTemperature area, System.Collections.Generic.List<Location> minList, System.Collections.Generic.List<Location> maxList, float temp, int x, int y)
-        {
-            if (temp < area.MinTemp)
-            {
-                area.MinTemp = temp;
-                minList.Clear();
-                minList.Add(new Location() { Left = x, Top = y });
-            }
-            else if (temp == area.MinTemp)
-            {
-                minList.Add(new Location() { Left = x, Top = y });
-            }
-            if (temp > area.MaxTemp)
-            {
-                area.MaxTemp = temp;
-                maxList.Clear();
-                maxList.Add(new Location() { Left = x, Top = y });
-            }
-            else if (temp == area.MaxTemp)
-            {
-                maxList.Add(new Location() { Left = x, Top = y });
-            }
         }
         /// <summary>
         /// 释放资源

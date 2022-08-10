@@ -1,11 +1,12 @@
 ﻿using System.Collections;
+using System.Linq;
 
 namespace SDKs.DjiImage.Thermals
 {
     /// <summary>
     /// 位置温度集合
     /// </summary>
-    public sealed class LTCollection : IReadOnlyCollection<LTEntry>, IReadOnlyList<LTEntry>, System.Collections.Generic.IEnumerable<LTEntry>, IEnumerable
+    public sealed class LTCollection : System.Collections.Generic.IEnumerable<LTEntry>, IEnumerable
     {
         System.Collections.Generic.List<LTEntry> _entries;
         int _leftsum;
@@ -97,7 +98,7 @@ namespace SDKs.DjiImage.Thermals
             get
             {
                 if (_avgtemp == null)
-                    _avgtemp = _entries.Count == 0 ? float.NaN : System.MathF.Round(_tempsum / _entries.Count, 1);
+                    _avgtemp = _entries.Count == 0 ? float.NaN : float.Parse((_tempsum / _entries.Count).ToString("f1"));
                 return _avgtemp.Value;
             }
         }
@@ -210,12 +211,12 @@ namespace SDKs.DjiImage.Thermals
         /// 添加位置温度
         /// </summary>
         /// <param name="entries"></param>
-        public void AddRange(IEnumerable<LTEntry> entries)
+        public void AddRange(System.Collections.Generic.IEnumerable<LTEntry> entries)
         {
             foreach (var entry in entries)
                 Add(entry);
         }
-        public IEnumerator<LTEntry> GetEnumerator()
+        public System.Collections.Generic.IEnumerator<LTEntry> GetEnumerator()
         {
             return _entries.GetEnumerator();
         }
@@ -229,7 +230,7 @@ namespace SDKs.DjiImage.Thermals
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public override bool Equals(object? obj)
+        public override bool Equals(object obj)
         {
             if (obj == null)
                 return false;
@@ -237,13 +238,18 @@ namespace SDKs.DjiImage.Thermals
                 return this.SequenceEqual((LTCollection)obj);
             return false;
         }
-        public override int GetHashCode()
-        {
-            return _entries.GetHashCode();
-        }
         public override string ToString()
         {
             return "SDKs.DjiImage.LTCollection";
+        }
+        public override int GetHashCode()
+        {
+           return _entries.GetHashCode();
+        }
+
+        System.Collections.Generic.IEnumerator<LTEntry> System.Collections.Generic.IEnumerable<LTEntry>.GetEnumerator()
+        {
+            return _entries.GetEnumerator();
         }
     }
 }

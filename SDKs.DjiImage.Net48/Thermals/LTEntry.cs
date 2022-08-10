@@ -33,7 +33,7 @@ namespace SDKs.DjiImage.Thermals
             Temp = temp;
         }
 
-        public override bool Equals([NotNullWhen(true)] object? obj)
+        public override bool Equals(object obj)
         {
             if (obj == null)
                 return false;
