@@ -1,34 +1,33 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SDKs.DjiImage.Thermals
 {
     /// <summary>
     /// 位置温度集合
     /// </summary>
-    public sealed class LTCollection : IReadOnlyCollection<LTEntry>, IReadOnlyList<LTEntry>, System.Collections.Generic.IEnumerable<LTEntry>, IEnumerable
+    public sealed class LTCollection : IAreaTemperature, IReadOnlyCollection<LTEntry>, IReadOnlyList<LTEntry>, IEnumerable<LTEntry>, IEnumerable
     {
-        System.Collections.Generic.List<LTEntry> _entries;
+        List<LTEntry> _entries;
         int _leftsum;
         int _topsum;
         float _tempsum;
         float _mintemp;
         float _maxtemp;
-        float? _avgtemp;
         int _left;
         int _top;
         int _right;
         int _bottom;
         bool _hasEntry;
         Location? _baryCentre;
-        readonly System.Collections.Generic.List<Location> _mintempLocList = new System.Collections.Generic.List<Location>();
-        readonly System.Collections.Generic.List<Location> _maxtempLocList = new System.Collections.Generic.List<Location>();
 
         /// <summary>
         /// 创建集合新实例
         /// </summary>
         public LTCollection()
         {
-            _entries = new System.Collections.Generic.List<LTEntry>();
+            _entries = new List<LTEntry>();
             _leftsum = 0;
             _topsum = 0;
             _mintemp = float.NaN;
@@ -42,7 +41,7 @@ namespace SDKs.DjiImage.Thermals
         /// <param name="capacity">初始化容量</param>
         public LTCollection(int capacity)
         {
-            _entries = new System.Collections.Generic.List<LTEntry>(capacity);
+            _entries = new List<LTEntry>(capacity);
             _leftsum = 0;
             _topsum = 0;
             _mintemp = float.NaN;
@@ -96,24 +95,8 @@ namespace SDKs.DjiImage.Thermals
         {
             get
             {
-                if (_avgtemp == null)
-                    _avgtemp = _entries.Count == 0 ? float.NaN : System.MathF.Round(_tempsum / _entries.Count, 1);
-                return _avgtemp.Value;
+                return _entries.Count == 0 ? float.NaN : System.MathF.Round(_tempsum / _entries.Count, 1);
             }
-        }
-        /// <summary>
-        /// 最高温度位置列表
-        /// </summary>
-        public System.Collections.ObjectModel.ReadOnlyCollection<Location> MaxTempLocs
-        {
-            get { return _mintempLocList.AsReadOnly(); }
-        }
-        /// <summary>
-        /// 最低温度位置列表
-        /// </summary>
-        public System.Collections.ObjectModel.ReadOnlyCollection<Location> MinTempLocs
-        {
-            get { return _maxtempLocList.AsReadOnly(); }
         }
         /// <summary>
         /// 水平方向最小位置
@@ -131,7 +114,6 @@ namespace SDKs.DjiImage.Thermals
         /// 垂直方向最大位置
         /// </summary>
         public int Bottom => _bottom;
-
         /// <summary>
         /// 集合元素数量
         /// </summary>
@@ -184,25 +166,10 @@ namespace SDKs.DjiImage.Thermals
             _tempsum += entry.Temp;
 
             if (_mintemp > entry.Temp)
-            {
                 _mintemp = entry.Temp;
-                _mintempLocList.Clear();
-                _mintempLocList.Add(new Location() { Left = entry.Left, Top = entry.Top });
-            }
-            else if (_mintemp == entry.Temp)
-            {
-                _mintempLocList.Add(new Location() { Left = entry.Left, Top = entry.Top });
-            }
+
             if (_maxtemp < entry.Temp)
-            {
                 _maxtemp = entry.Temp;
-                _mintempLocList.Clear();
-                _maxtempLocList.Add(new Location() { Left = entry.Left, Top = entry.Top });
-            }
-            else if (_maxtemp == entry.Temp)
-            {
-                _maxtempLocList.Add(new Location() { Left = entry.Left, Top = entry.Top });
-            }
 
             _entries.Add(entry);
         }
@@ -215,6 +182,10 @@ namespace SDKs.DjiImage.Thermals
             foreach (var entry in entries)
                 Add(entry);
         }
+        /// <summary>
+        /// 返回循环访问集合的枚举数
+        /// </summary>
+        /// <returns></returns>
         public IEnumerator<LTEntry> GetEnumerator()
         {
             return _entries.GetEnumerator();
@@ -237,13 +208,22 @@ namespace SDKs.DjiImage.Thermals
                 return this.SequenceEqual((LTCollection)obj);
             return false;
         }
+        /// <summary>
+        /// 获取当前对象的哈希代码
+        /// </summary>
+        /// <returns></returns>
         public override int GetHashCode()
         {
             return _entries.GetHashCode();
         }
+        /// <summary>
+        /// 返回表示当前对象区域温度的字符串
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks>如：{"minTemp":100,"maxTemp":100,"avgTemp":36.7}</remarks>
         public override string ToString()
         {
-            return "SDKs.DjiImage.LTCollection";
+            return "{\"minTemp\":" + this._mintemp + ",\"maxTemp\":" + this._maxtemp + ",\"avgTemp\":" + this.AvgTemp + "}";
         }
     }
 }

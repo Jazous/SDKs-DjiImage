@@ -32,7 +32,11 @@ namespace SDKs.DjiImage.Thermals
             Top = top;
             Temp = temp;
         }
-
+        /// <summary>
+        /// 返回当前对象与指定对象的位置和温度是否都相等
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public override bool Equals(object obj)
         {
             if (obj == null)
@@ -42,12 +46,16 @@ namespace SDKs.DjiImage.Thermals
             return false;
         }
 
+        /// <summary>
+        /// 获取当前对象的哈希代码
+        /// </summary>
+        /// <returns></returns>
         public override int GetHashCode()
         {
             return base.GetHashCode();
         }
         /// <summary>
-        /// 是否位置和温度都相等
+        /// 返回当前对象与指定对象的位置和温度是否都相等
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
@@ -56,12 +64,13 @@ namespace SDKs.DjiImage.Thermals
             return this.Left == other.Left && this.Top == other.Top && this.Temp == other.Temp;
         }
         /// <summary>
-        /// 返回 JSON 字符串
+        /// 返回表示当前对象的 JSON 字符串
         /// </summary>
         /// <returns></returns>
+        /// <remarks>如：{"left":100,"top":100,"temp":36.7}</remarks>
         public override string ToString()
         {
-            return "{\"Left\":" + this.Left + ",\"Top\":" + this.Top + ",\"Temp\":" + this.Temp + "}";
+            return "{\"left\":" + this.Left + ",\"top\":" + this.Top + ",\"temp\":" + this.Temp + "}";
         }
 
         /// <summary>
