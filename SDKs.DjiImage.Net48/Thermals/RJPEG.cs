@@ -192,28 +192,20 @@ namespace SDKs.DjiImage.Thermals
             if (code == 0)
             {
                 var res = new dirp_resolution_t();
-                try
-                {
-                    _tsdk.dirp_get_rjpeg_resolution(_ph, ref res);
-                    _width = res.width;
-                    _height = res.height;
+                _tsdk.dirp_get_rjpeg_resolution(_ph, ref res);
+                _width = res.width;
+                _height = res.height;
 
-                    var mp = new MeasureParam();
-                    _tsdk.dirp_get_measurement_params(_ph, ref mp);
-                    _params = mp;
+                var mp = new MeasureParam();
+                _tsdk.dirp_get_measurement_params(_ph, ref mp);
+                _params = mp;
 
-                    int rawsize = res.width * res.height * 2;
-                    byte[] buffer = new byte[rawsize];
-                    _tsdk.dirp_measure(_ph, buffer, rawsize);
-                    _tsdk.dirp_destroy(_ph);
-                    _ph = System.IntPtr.Zero;
-                    _mData = Cast(buffer, res.width, res.height);
-                }
-                finally
-                {
-                    _tsdk.dirp_destroy(_ph);
-                    _ph = System.IntPtr.Zero;
-                }
+                int rawsize = res.width * res.height * 2;
+                byte[] buffer = new byte[rawsize];
+                _tsdk.dirp_measure(_ph, buffer, rawsize);
+                _tsdk.dirp_destroy(_ph);
+                _ph = System.IntPtr.Zero;
+                _mData = Cast(buffer, res.width, res.height);
             }
             return code;
         }
@@ -244,7 +236,7 @@ namespace SDKs.DjiImage.Thermals
         /// <summary>
         /// 获取满足指定条件的位置温度集合
         /// </summary>
-        /// <param name="predicate">参数以此对应 Left、Top、Temp</param>
+        /// <param name="predicate">参数依次对应 Left、Top、Temp</param>
         /// <returns></returns>
         public LTCollection GetEntries(System.Func<int, int, float, bool> predicate)
         {
@@ -290,7 +282,7 @@ namespace SDKs.DjiImage.Thermals
             return _mData[left, top];
         }
         /// <summary>
-        ///获取图像指定直线上的位置温度集合
+        ///获取图像指定线段上的位置温度集合
         /// </summary>
         /// <param name="p1"></param>
         /// <param name="p2"></param>
@@ -300,7 +292,7 @@ namespace SDKs.DjiImage.Thermals
             return GetLine(p1.Left, p1.Top, p2.Left, p2.Top);
         }
         /// <summary>
-        /// 获取图像指定直线上的位置温度集合
+        /// 获取图像指定线段上的位置温度集合
         /// </summary>
         /// <param name="leftA"></param>
         /// <param name="topA"></param>
@@ -310,79 +302,50 @@ namespace SDKs.DjiImage.Thermals
         public LTCollection GetLine(int leftA, int topA, int leftB, int topB)
         {
             var result = new LTCollection();
-            int left, right;
-            if (leftA > leftB)
-            {
-                left = leftA;
-                right = topA;
-                leftA = leftB;
-                topA = topB;
-                leftB = left;
-                topB = right;
-            }
             int w = _width - 1;
             int h = _height - 1;
 
-            if (leftA > w || leftB < 0)
-                return result;
-
-            int miny = System.Math.Min(topA, topB);
-            int maxy = System.Math.Max(topA, topB);
-            if (miny > h || maxy < 0)
-                return result;
-
-            int xofffset = leftB - leftA;
-            int yofffset = System.Math.Abs(topB - topA);
-
-            if (xofffset == 0 && yofffset == 0)
+            if (leftA == leftB)
             {
-                if (leftA >= 0 && leftA < w && topA >= 0 && topA < h)
-                    result.Add(leftA, topA, _mData[leftA, topA]);
-                return result;
-            }
+                if (leftA < 0 && leftA > w)
+                    return result;
 
-            if (xofffset == 0)
-            {
-                if (leftA >= 0 && leftA <= w)
-                {
-                    if (miny < 0) miny = 0;
-                    if (maxy > h) maxy = h;
-                    for (int i = miny; i <= maxy; i++)
-                        result.Add(leftA, i, _mData[leftA, i]);
-                }
-                return result;
-            }
-            if (yofffset == 0)
-            {
-                if (topA >= 0 && topA <= h)
-                {
-                    if (leftA < 0) leftA = 0;
-                    if (leftB > w) leftB = w;
-                    for (int i = leftA; i <= leftB; i++)
-                        result.Add(i, topA, _mData[i, topA]);
-                }
+                int miny = System.Math.Min(topA, topB);
+                if (miny < 0) miny = 0;
+                int maxy = System.Math.Max(topA, topB);
+                if (maxy > h) maxy = h;
+
+                for (int j = miny; j <= maxy; j++)
+                    result.Add(leftA, j, _mData[leftA, j]);
                 return result;
             }
             else
             {
-                decimal k = decimal.Divide(yofffset + 1, xofffset + 1);
-                bool up = topA > topB;
-                int j;
-                int xmin = leftA;
-                int xmax = leftB;
-                if (xmin < 0) xmin = 0;
-                if (xmax > 0) xmax = w;
-                for (int i = xmin; i <= xmax; i++)
+                int minx = System.Math.Min(leftA, leftB);
+                int maxx = System.Math.Max(leftA, leftB);
+                if (minx > w || maxx < 0)
+                    return result;
+
+                if (minx < 0) minx = 0;
+                if (maxx > w) maxx = w;
+
+                int j1, j2;
+                decimal k = decimal.Divide(topB - topA, leftB - leftA);
+                for (int i = minx; i <= maxx; i++)
                 {
-                    j = System.Convert.ToInt32(up ? (maxy - (i - leftA + 1) * k + 1) : (i - leftA + 1) * k + miny - 1);
-                    if (j >= 0 && j <= h)
-                        result.Add(i, j, _mData[i, j]);
+                    j1 = System.Convert.ToInt32(System.Math.Floor(k * i));
+                    if (j1 >= 0 && j1 <= h)
+                        result.Add(i, j1, _mData[i, j1]);
+
+                    j2 = System.Convert.ToInt32(System.Math.Ceiling(k * i));
+                    if (j1 != j2 && j2 >= 0 && j2 <= h)
+                        result.Add(i, j2, _mData[i, j2]);
                 }
                 return result;
             }
         }
         /// <summary>
-        /// 获取图像指定直线上的温度
+        /// 获取图像指定线段上的温度
         /// </summary>
         /// <param name="p1"></param>
         /// <param name="p2"></param>
@@ -392,7 +355,7 @@ namespace SDKs.DjiImage.Thermals
             return GetLineTemp(p1.Left, p1.Top, p2.Left, p2.Top);
         }
         /// <summary>
-        /// 获取图像指定直线上的温度
+        /// 获取图像指定线段上的温度
         /// </summary>
         /// <param name="leftA"></param>
         /// <param name="topA"></param>
@@ -401,121 +364,70 @@ namespace SDKs.DjiImage.Thermals
         /// <returns></returns>
         public AreaTemperature GetLineTemp(int leftA, int topA, int leftB, int topB)
         {
-            int left, right;
-            if (leftA > leftB)
-            {
-                left = leftA;
-                right = topA;
-                leftA = leftB;
-                topA = topB;
-                leftB = left;
-                topB = right;
-            }
             int w = _width - 1;
             int h = _height - 1;
 
-            if (leftA > w || leftB < 0)
-                return AreaTemperature.Empty;
-
-            int miny = System.Math.Min(topA, topB);
-            int maxy = System.Math.Max(topA, topB);
-            if (miny > h || maxy < 0)
-                return AreaTemperature.Empty;
-
-            int xofffset = leftB - leftA;
-            int yofffset = System.Math.Abs(topB - topA);
             float temp;
-            if (xofffset == 0 && yofffset == 0)
+            float mintemp;
+            float maxtemp;
+            float sumtemp = 0;
+            if (leftA == leftB)
             {
-                if (leftA >= 0 && leftA < w && topA >= 0 && topB < h)
-                {
-                    temp = _mData[leftA, topA];
-                    return new AreaTemperature(temp, temp, temp);
-                }
-                return AreaTemperature.Empty;
-            }
+                if (leftA < 0 && leftA > w)
+                    return AreaTemperature.Empty;
 
-            if (xofffset == 0)
-            {
-                if (leftA >= 0 && leftA <= w)
+                int miny = System.Math.Min(topA, topB);
+                if (miny < 0) miny = 0;
+                int maxy = System.Math.Max(topA, topB);
+                if (maxy > h) maxy = h;
+
+                mintemp = _maxtemp;
+                maxtemp = _mintemp;
+                sumtemp = 0;
+
+                for (int j = miny; j <= maxy; j++)
                 {
-                    if (miny < 0) miny = 0;
-                    if (maxy > h) maxy = h;
-                    temp = _mData[leftA, miny];
-                    float mintemp = temp;
-                    float maxtemp = temp;
-                    float sumtemp = 0;
-                    for (int i = miny; i <= maxy; i++)
-                    {
-                        temp = _mData[leftA, i];
-                        if (temp < mintemp)
-                            mintemp = temp;
-                        if (temp > maxtemp)
-                            maxtemp = temp;
-                        sumtemp += temp;
-                    }
-                    return new AreaTemperature(mintemp, maxtemp, float.Parse((sumtemp / (maxy - miny + 1)).ToString("f1")));
+                    temp = _mData[leftA, j];
+                    if (mintemp > temp) mintemp = temp;
+                    if (maxtemp < temp) maxtemp = temp;
+                    sumtemp += temp;
                 }
-                return AreaTemperature.Empty;
-            }
-            if (yofffset == 0)
-            {
-                if (topA >= 0 && topA <= h)
-                {
-                    if (leftA < 0) leftA = 0;
-                    if (leftB > w) leftB = w;
-                    temp = _mData[leftA, topA];
-                    float mintemp = temp;
-                    float maxtemp = temp;
-                    float sumtemp = 0;
-                    for (int i = leftA; i <= leftB; i++)
-                    {
-                        temp = _mData[i, topA];
-                        if (temp < mintemp)
-                            mintemp = temp;
-                        if (temp > maxtemp)
-                            maxtemp = temp;
-                        sumtemp += temp;
-                    }
-                    return new AreaTemperature(mintemp, maxtemp, float.Parse((sumtemp / (leftB - leftA + 1)).ToString("f1")));
-                }
-                return AreaTemperature.Empty;
+                return new AreaTemperature(mintemp, maxtemp, float.Parse((sumtemp / (maxy - miny + 1)).ToString("f1")));
             }
             else
             {
-                decimal k = decimal.Divide(yofffset + 1, xofffset + 1);
-                bool up = topA > topB;
-                int j;
-                int xmin = leftA;
-                int xmax = leftB;
-                if (xmin < 0) xmin = 0;
-                if (xmax > 0) xmax = w;
-                float mintemp = float.NaN;
-                float maxtemp = float.NaN;
-                float sumtemp = 0;
-                int sumcount = 0;
-                for (int i = xmin; i <= xmax; i++)
+                int minx = System.Math.Min(leftA, leftB);
+                int maxx = System.Math.Max(leftA, leftB);
+                if (minx > w || maxx < 0)
+                    return AreaTemperature.Empty;
+
+                if (minx < 0) minx = 0;
+                if (maxx > w) maxx = w;
+                mintemp = _maxtemp;
+                maxtemp = _mintemp;
+
+                int j1, j2;
+                float sumcount = 0;
+                decimal k = decimal.Divide(topB - topA, leftB - leftA);
+                for (int i = minx; i <= maxx; i++)
                 {
-                    //up: j = maxy - [(maxy  - miny + 1)/(maxx - minx + 1)] * (i - minx + 1) + 1
-                    //dn: j = [(maxy - miny + 1)/(maxx - minx + 1)] * (i - minx + 1) + miny - 1
-                    j = System.Convert.ToInt32(up ? (maxy - (i - leftA + 1) * k + 1) : (i - leftA + 1) * k + miny - 1);
-                    if (j >= 0 && j <= h)
+                    j1 = System.Convert.ToInt32(System.Math.Floor(k * i));
+                    if (j1 >= 0 && j1 <= h)
                     {
-                        temp = _mData[i, j];
-                        if (sumcount == 0)
-                        {
-                            mintemp = temp;
-                            maxtemp = temp;
-                        }
-                        else
-                        {
-                            if (temp < mintemp)
-                                mintemp = temp;
-                            if (temp > maxtemp)
-                                maxtemp = temp;
-                        }
-                        sumcount++;
+                        temp = _mData[i, j1];
+                        if (mintemp > temp) mintemp = temp;
+                        if (maxtemp < temp) maxtemp = temp;
                         sumtemp += temp;
+                        sumcount++;
+                    }
+                    j2 = System.Convert.ToInt32(System.Math.Ceiling(k * i));
+                    if (j1 != j2 && j2 >= 0 && j2 <= h)
+                    {
+                        temp = _mData[i, j2];
+                        if (mintemp > temp) mintemp = temp;
+                        if (maxtemp < temp) maxtemp = temp;
+                        sumtemp += temp;
+                        sumcount++;
                     }
                 }
                 return new AreaTemperature(mintemp, maxtemp, float.Parse((sumtemp / sumcount).ToString("f1")));
@@ -621,6 +533,16 @@ namespace SDKs.DjiImage.Thermals
         /// <summary>
         /// 获取图像指定圆内的位置温度集合
         /// </summary>
+        /// <param name="p">圆心位置</param>
+        /// <param name="radius">半径</param>
+        /// <returns></returns>
+        public LTCollection GetCircle(Location p, int radius)
+        {
+            return GetEllipse(p.Left, p.Top, radius, radius);
+        }
+        /// <summary>
+        /// 获取图像指定圆内的位置温度集合
+        /// </summary>
         /// <param name="left">圆心水平方向位置</param>
         /// <param name="top">圆心垂直方向位置</param>
         /// <param name="radius">半径</param>
@@ -632,6 +554,16 @@ namespace SDKs.DjiImage.Thermals
         /// <summary>
         /// 获取图像指定圆内的温度
         /// </summary>
+        /// <param name="p">圆心位置</param>
+        /// <param name="radius">半径</param>
+        /// <returns></returns>
+        public AreaTemperature GetCircleTemp(Location p, int radius)
+        {
+            return GetEllipseTemp(p.Left, p.Top, radius, radius);
+        }
+        /// <summary>
+        /// 获取图像指定圆内的温度
+        /// </summary>
         /// <param name="left">圆心水平方向位置</param>
         /// <param name="top">圆心垂直方向位置</param>
         /// <param name="radius">半径</param>
@@ -639,6 +571,17 @@ namespace SDKs.DjiImage.Thermals
         public AreaTemperature GetCircleTemp(int left, int top, int radius)
         {
             return GetEllipseTemp(left, top, radius, radius);
+        }
+        /// <summary>
+        /// 获取图像指定椭圆内的位置温度集合
+        /// </summary>
+        /// <param name="p">椭圆中心点位置</param>
+        /// <param name="a">水平方向半轴长度，椭圆宽度 = 2*a</param>
+        /// <param name="b">垂直方向半轴长度，椭圆高度 = 2*b</param>
+        /// <returns></returns>
+        public LTCollection GetEllipse(Location p, int a, int b)
+        {
+            return GetEllipse(p.Left, p.Top, a, b);
         }
         /// <summary>
         /// 获取图像指定椭圆内的位置温度集合
@@ -686,6 +629,17 @@ namespace SDKs.DjiImage.Thermals
                 }
             }
             return result;
+        }
+        /// <summary>
+        /// 获取图像指定椭圆内的温度
+        /// </summary>
+        /// <param name="p">椭圆中心点位置</param>
+        /// <param name="a">水平方向半轴长度，椭圆宽度 = 2*a</param>
+        /// <param name="b">垂直方向半轴长度，椭圆高度 = 2*b</param>
+        /// <returns></returns>
+        public AreaTemperature GetEllipseTemp(Location p, int a, int b)
+        {
+            return GetEllipseTemp(p.Left, p.Top, a, b);
         }
         /// <summary>
         /// 获取图像指定椭圆内的温度
