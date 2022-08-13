@@ -7,7 +7,7 @@ namespace SDKs.DjiImage.Thermals
     /// <summary>
     /// 位置温度集合
     /// </summary>
-    public sealed class LTCollection : IAreaTemperature, IReadOnlyCollection<LTEntry>, IReadOnlyList<LTEntry>, IEnumerable<LTEntry>, IEnumerable
+    public sealed class LTCollection : IAreaTemperature, IReadOnlyCollection<LTEntry>, IReadOnlyList<LTEntry>, IEnumerable<LTEntry>, ICollection, IEnumerable
     {
         List<LTEntry> _entries;
         int _leftsum;
@@ -19,22 +19,14 @@ namespace SDKs.DjiImage.Thermals
         int _top;
         int _right;
         int _bottom;
-        bool _hasEntry;
+        bool _isEmpty;
+        object _syncRoot;
         Location? _baryCentre;
-
+       
         /// <summary>
         /// 创建集合新实例
         /// </summary>
-        public LTCollection()
-        {
-            _entries = new List<LTEntry>();
-            _leftsum = 0;
-            _topsum = 0;
-            _mintemp = float.NaN;
-            _maxtemp = float.NaN;
-            _tempsum = 0;
-            _hasEntry = false;
-        }
+        public LTCollection() : this(0x100) { }
         /// <summary>
         /// 创建集合新实例
         /// </summary>
@@ -47,7 +39,8 @@ namespace SDKs.DjiImage.Thermals
             _mintemp = float.NaN;
             _maxtemp = float.NaN;
             _tempsum = 0;
-            _hasEntry = false;
+            _syncRoot = null;
+            _isEmpty = true;
         }
         /// <summary>
         /// 获取指定位置的元素
@@ -123,6 +116,25 @@ namespace SDKs.DjiImage.Thermals
         }
 
         /// <summary>
+        /// 指示该集合是否线程安全
+        /// </summary>
+        public bool IsSynchronized => false;
+        /// <summary>
+        /// 异获取步锁
+        /// </summary>
+        public object SyncRoot
+        {
+            get
+            {
+                if (_syncRoot == null)
+                {
+                    System.Threading.Interlocked.CompareExchange<object>(ref _syncRoot, new object(), null);
+                }
+                return _syncRoot;
+            }
+        }
+
+        /// <summary>
         /// 添加位置温度
         /// </summary>
         /// <param name="left"></param>
@@ -138,7 +150,7 @@ namespace SDKs.DjiImage.Thermals
         /// <param name="entry"></param>
         public void Add(LTEntry entry)
         {
-            if (!_hasEntry)
+            if (_isEmpty)
             {
                 _mintemp = entry.Temp;
                 _maxtemp = entry.Temp;
@@ -146,9 +158,12 @@ namespace SDKs.DjiImage.Thermals
                 _top = entry.Top;
                 _right = entry.Left;
                 _bottom = entry.Top;
-                _hasEntry = true;
+                _isEmpty = false;
             }
-
+            InterAdd(entry);
+        }
+        void InterAdd(LTEntry entry)
+        {
             if (entry.Left < _left)
                 _left = entry.Left;
 
@@ -177,10 +192,25 @@ namespace SDKs.DjiImage.Thermals
         /// 添加位置温度
         /// </summary>
         /// <param name="entries"></param>
-        public void AddRange(IEnumerable<LTEntry> entries)
+        public void AddRange(IList<LTEntry> entries)
         {
-            foreach (var entry in entries)
-                Add(entry);
+            if (entries == null || entries.Count == 0)
+                return;
+
+            if (_isEmpty)
+            {
+                var entry = entries[0];
+                _mintemp = entry.Temp;
+                _maxtemp = entry.Temp;
+                _left = entry.Left;
+                _top = entry.Top;
+                _right = entry.Left;
+                _bottom = entry.Top;
+                _isEmpty = false;
+            }
+
+            for (int i = 0; i < entries.Count; i++)
+                InterAdd(entries[i]);
         }
         /// <summary>
         /// 返回循环访问集合的枚举数
@@ -224,6 +254,16 @@ namespace SDKs.DjiImage.Thermals
         public override string ToString()
         {
             return "{\"minTemp\":" + this._mintemp + ",\"maxTemp\":" + this._maxtemp + ",\"avgTemp\":" + this.AvgTemp + "}";
+        }
+
+        /// <summary>
+        /// 将集合元素复制到指定数组
+        /// </summary>
+        /// <param name="array">目标数组</param>
+        /// <param name="index">开始复制的索引值</param>
+        public void CopyTo(System.Array array, int index)
+        {
+            ((ICollection)_entries).CopyTo(array, index);
         }
     }
 }

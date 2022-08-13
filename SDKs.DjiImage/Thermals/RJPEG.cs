@@ -300,7 +300,7 @@ namespace SDKs.DjiImage.Thermals
             return GetLine(p1.Left, p1.Top, p2.Left, p2.Top);
         }
         /// <summary>
-        /// 获取图像指定直线上的位置温度集合
+        /// 获取图像指定线段上的位置温度集合
         /// </summary>
         /// <param name="leftA"></param>
         /// <param name="topA"></param>
@@ -545,26 +545,22 @@ namespace SDKs.DjiImage.Thermals
             var result = new LTCollection();
             int w = _width - 1;
             int h = _height - 1;
-            if (left > right || top > bottom)
-                return result;
-            if (bottom < 0 || top > h || left > w || right < 0)
+            if (left > right || left > w || right < 0 || top > bottom || bottom < 0 || top > h)
                 return result;
 
-            if (left <= 0) left = 0;
-            if (left > w) left = w;
+            int minx = left;
+            if (minx < 0) minx = 0;
+            int maxx = right;
+            if (maxx > w) maxx = w;
 
-            if (right <= 0) right = 0;
-            if (right > w) right = w;
-
-            if (top <= 0) top = 0;
-            if (top > h) top = h;
-
-            if (bottom <= 0) bottom = 0;
-            if (bottom > h) bottom = h;
+            int miny = top;
+            if (miny < 0) miny = 0;
+            int maxy = bottom;
+            if (maxy > w) maxy = h;
 
 
-            for (int i = left; i <= right; i++)
-                for (int j = top; j <= bottom; j++)
+            for (int i = minx; i <= maxx; i++)
+                for (int j = miny; j <= maxy; j++)
                     result.Add(i, j, _mData[i, j]);
 
             return result;
@@ -592,30 +588,26 @@ namespace SDKs.DjiImage.Thermals
         {
             int w = _width - 1;
             int h = _height - 1;
-            if (left > right || top > bottom)
-                return AreaTemperature.Empty;
-            if (bottom < 0 || top > h || left > w || right < 0)
+            if (left > right || left > w || right < 0 || top > bottom || bottom < 0 || top > h)
                 return AreaTemperature.Empty;
 
-            if (left <= 0) left = 0;
-            if (left > w) left = w;
+            int minx = left;
+            if (minx < 0) minx = 0;
+            int maxx = right;
+            if (maxx > w) maxx = w;
 
-            if (right <= 0) right = 0;
-            if (right > w) right = w;
+            int miny = top;
+            if (miny < 0) miny = 0;
+            int maxy = bottom;
+            if (maxy > w) maxy = h;
 
-            if (top <= 0) top = 0;
-            if (top > h) top = h;
-
-            if (bottom <= 0) bottom = 0;
-            if (bottom > h) bottom = h;
-
-            float temp = _mData[left, top];
-            float mintemp = temp;
-            float maxtemp = temp;
+            float temp;
+            float mintemp = _maxtemp;
+            float maxtemp = _mintemp;
             float sumtemp = 0;
-            for (int i = left; i <= right; i++)
+            for (int i = minx; i <= maxx; i++)
             {
-                for (int j = top; j <= bottom; j++)
+                for (int j = miny; j <= maxy; j++)
                 {
                     temp = _mData[i, j];
                     sumtemp += temp;
@@ -623,11 +615,21 @@ namespace SDKs.DjiImage.Thermals
                     if (maxtemp < temp) maxtemp = temp;
                 }
             }
-            float avgtemp = MathF.Round(sumtemp / ((right - left + 1) * (bottom - top + 1)), 1);
+            float avgtemp = MathF.Round(sumtemp / ((maxx - minx + 1) * (maxy - miny + 1)), 1);
             return new AreaTemperature(mintemp, maxtemp, avgtemp);
         }
         /// <summary>
-        /// 获取图像指定圆形范围内的位置温度集合
+        /// 获取图像指定圆内的位置温度集合
+        /// </summary>
+        /// <param name="p">圆心位置</param>
+        /// <param name="radius">半径</param>
+        /// <returns></returns>
+        public LTCollection GetCircle(Location p, int radius)
+        {
+            return GetEllipse(p.Left, p.Top, radius, radius);
+        }
+        /// <summary>
+        /// 获取图像指定圆内的位置温度集合
         /// </summary>
         /// <param name="left">圆心水平方向位置</param>
         /// <param name="top">圆心垂直方向位置</param>
@@ -635,59 +637,20 @@ namespace SDKs.DjiImage.Thermals
         /// <returns></returns>
         public LTCollection GetCircle(int left, int top, int radius)
         {
-            var result = new LTCollection();
-            if (radius <= 0)
-                return result;
-
-            int h = _height - 1;
-            int w = _width - 1;
-
-            if (left < -radius || left > w + radius)
-                return result;
-            if (top < -radius || top > h + radius)
-                return result;
-
-            int rxr = checked(radius * radius);
-            int dy, y, yT, yB, xL, xR;
-
-            for (int i = 1; i <= radius; i++)
-            {
-                xL = left - i;
-                xR = left + i;
-                if (xR < 0 || xL > h)
-                    continue;
-
-                dy = System.Convert.ToInt32(System.Math.Sqrt(rxr - System.Math.Pow(i, 2)));
-                yT = top - dy;
-                yB = top + dy;
-                if (yB < 0 || yT > h)
-                    continue;
-
-                if (yT < 0) yT = 0;
-                if (yB > h) yB = h;
-
-                if (xL >= 0 && xL <= w)
-                    for (y = yT; y <= yB; y++)
-                        result.Add(xL, y, _mData[xL, y]);
-
-                if (xR >= 0 && xR <= w)
-                    for (y = yT; y <= yB; y++)
-                        result.Add(xR, y, _mData[xR, y]);
-            }
-            if (left >= 0 && left <= w)
-            {
-                yT = top - radius;
-                yB = top + radius;
-                if (yT < 0) yT = 0;
-                if (yB > h) yB = h;
-
-                for (y = yT; y <= yB; y++)
-                    result.Add(left, y, _mData[left, y]);
-            }
-            return result;
+            return GetEllipse(left, top, radius, radius);
         }
         /// <summary>
-        /// 获取图像指定圆形范围内的位置温度
+        /// 获取图像指定圆内的温度
+        /// </summary>
+        /// <param name="p">圆心位置</param>
+        /// <param name="radius">半径</param>
+        /// <returns></returns>
+        public AreaTemperature GetCircleTemp(Location p, int radius)
+        {
+            return GetEllipseTemp(p.Left, p.Top, radius, radius);
+        }
+        /// <summary>
+        /// 获取图像指定圆内的温度
         /// </summary>
         /// <param name="left">圆心水平方向位置</param>
         /// <param name="top">圆心垂直方向位置</param>
@@ -695,57 +658,122 @@ namespace SDKs.DjiImage.Thermals
         /// <returns></returns>
         public AreaTemperature GetCircleTemp(int left, int top, int radius)
         {
-            if (radius <= 0)
-                return AreaTemperature.Empty;
-
+            return GetEllipseTemp(left, top, radius, radius);
+        }
+        /// <summary>
+        /// 获取图像指定椭圆内的位置温度集合
+        /// </summary>
+        /// <param name="p">椭圆中心点位置</param>
+        /// <param name="a">水平方向半轴长度，椭圆宽度 = 2*a</param>
+        /// <param name="b">垂直方向半轴长度，椭圆高度 = 2*b</param>
+        /// <returns></returns>
+        public LTCollection GetEllipse(Location p, int a, int b)
+        {
+            return GetEllipse(p.Left, p.Top, a, b);
+        }
+        /// <summary>
+        /// 获取图像指定椭圆内的位置温度集合
+        /// </summary>
+        /// <param name="left">椭圆中心点水平方向位置</param>
+        /// <param name="top">椭圆中心点垂直方向位置</param>
+        /// <param name="a">水平方向半轴长度，椭圆宽度 = 2*a</param>
+        /// <param name="b">垂直方向半轴长度，椭圆高度 = 2*b</param>
+        /// <returns></returns>
+        public LTCollection GetEllipse(int left, int top, int a, int b)
+        {
+            var result = new LTCollection();
             int h = _height - 1;
             int w = _width - 1;
 
-            if (left < -radius || left > w + radius)
-                return AreaTemperature.Empty; 
-            if (top < -radius || top > h + radius)
+            if (left < -a || left > w + a || top < -b || top > h + b || a <= 0 || b <= 0)
+                return result;
+
+            int minx = left - a;
+            if (minx < 0) minx = 0;
+            int maxx = left + a;
+            if (maxx > w) maxx = w;
+
+            int miny = top - b;
+            if (miny < 0) miny = 0;
+            int maxy = top + b;
+            if (maxy > w) maxy = w;
+
+            float temp;
+            float aa = a * a;
+            float bb = b * b;
+            float aabb = aa * bb;
+            int dx, dy;
+            for (int i = minx; i <= maxx; i++)
+            {
+                for (int j = miny; j <= maxy; j++)
+                {
+                    dx = left - i;
+                    dy = top - j;
+                    if (dx * dx * bb + dy * dy * aa < aabb)
+                    {
+                        temp = _mData[i, j];
+                        result.Add(j, j, temp);
+                    }
+                }
+            }
+            return result;
+        }
+        /// <summary>
+        /// 获取图像指定椭圆内的温度
+        /// </summary>
+        /// <param name="p">椭圆中心点位置</param>
+        /// <param name="a">水平方向半轴长度，椭圆宽度 = 2*a</param>
+        /// <param name="b">垂直方向半轴长度，椭圆高度 = 2*b</param>
+        /// <returns></returns>
+        public AreaTemperature GetEllipseTemp(Location p, int a, int b)
+        {
+            return GetEllipseTemp(p.Left, p.Top, a, b);
+        }
+        /// <summary>
+        /// 获取图像指定椭圆内的温度
+        /// </summary>
+        /// <param name="left">椭圆中心点水平方向位置</param>
+        /// <param name="top">椭圆中心点垂直方向位置</param>
+        /// <param name="a">水平方向半轴长度，椭圆宽度 = 2*a</param>
+        /// <param name="b">垂直方向半轴长度，椭圆高度 = 2*b</param>
+        /// <returns></returns>
+        public AreaTemperature GetEllipseTemp(int left, int top, int a, int b)
+        {
+            int h = _height - 1;
+            int w = _width - 1;
+
+            if (left < -a || left > w + a || top < -b || top > h + b || a <= 0 || b <= 0)
                 return AreaTemperature.Empty;
 
-            int rxr = checked(radius * radius);
-            int dy, y, yT, yB, xL, xR;
+            int minx = left - a;
+            if (minx < 0) minx = 0;
+            int maxx = left + a;
+            if (maxx > w) maxx = w;
+
+            int miny = top - b;
+            if (miny < 0) miny = 0;
+            int maxy = top + b;
+            if (maxy > w) maxy = w;
+
+            float aa = a * a;
+            float bb = b * b;
+            float aabb = aa * bb;
+            int dx, dy;
+
+            float temp;
             float mintemp = _maxtemp;
             float maxtemp = _mintemp;
             float sumtemp = 0;
             int sumcount = 0;
-            float temp;
-            for (int i = 1; i <= radius; i++)
+            for (int i = minx; i <= maxx; i++)
             {
-                xL = left - i;
-                xR = left + i;
-                if (xR < 0 || xL > h)
-                    continue;
-
-                dy = System.Convert.ToInt32(System.Math.Sqrt(rxr - System.Math.Pow(i, 2)));
-                yT = top - dy;
-                yB = top + dy;
-                if (yB < 0 || yT > h)
-                    continue;
-
-                if (yT < 0) yT = 0;
-                if (yB > h) yB = h;
-
-                if (xL >= 0 && xL <= w)
+                for (int j = miny; j <= maxy; j++)
                 {
-                    for (y = yT; y <= yB; y++)
+                    dx = left - i;
+                    dy = top - j;
+                    if (dx * dx * bb + dy * dy * aa < aabb)
                     {
-                        temp = _mData[xL, y];
-                        if (mintemp > temp) mintemp = temp;
-                        if (maxtemp < temp) maxtemp = temp;
-                        sumtemp += temp;
-                        sumcount++;
-                    }
-                }
-
-                if (xR >= 0 && xR <= w)
-                {
-                    for (y = yT; y <= yB; y++)
-                    {
-                        temp = _mData[xR, y];
+                        temp = _mData[i, j];
                         if (mintemp > temp) mintemp = temp;
                         if (maxtemp < temp) maxtemp = temp;
                         sumtemp += temp;
@@ -753,23 +781,7 @@ namespace SDKs.DjiImage.Thermals
                     }
                 }
             }
-            if (left >= 0 && left <= w)
-            {
-                yT = top - radius;
-                yB = top + radius;
-                if (yT < 0) yT = 0;
-                if (yB > h) yB = h;
-
-                for (y = yT; y <= yB; y++)
-                {
-                    temp = _mData[left, y];
-                    if (mintemp > temp) mintemp = temp;
-                    if (maxtemp < temp) maxtemp = temp;
-                    sumtemp += temp;
-                    sumcount++;
-                }
-            }
-            return new AreaTemperature(mintemp, maxtemp, MathF.Round(sumtemp / sumcount, 1));
+            return new AreaTemperature(mintemp, maxtemp, System.MathF.Round(sumtemp / sumcount, 1));
         }
         float[,] Cast(byte[] rawData, int width, int height)
         {
@@ -781,15 +793,15 @@ namespace SDKs.DjiImage.Thermals
             float mintemp = temp;
             float maxtemp = temp;
             float sumTemp = 0;
-            for (i = 0; i < height; i++)
+            for (j = 0; j < height; j++)
             {
-                for (j = 0; j < width; j++)
+                for (i = 0; i < width; i++)
                 {
                     arr[0] = rawData[index];
                     arr[1] = rawData[index + 1];
                     index += 2;
                     temp = System.MathF.Round(System.BitConverter.ToInt16(arr, 0) * 0.100000f, 1);
-                    result[j, i] = temp;
+                    result[i, j] = temp;
                     sumTemp += temp;
                     if (mintemp > temp)
                         mintemp = temp;

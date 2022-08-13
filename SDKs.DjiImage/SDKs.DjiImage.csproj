@@ -27,7 +27,7 @@
 	<AssemblyOriginatorKeyFile>..\SDKs.snk</AssemblyOriginatorKeyFile>
 	<DocumentationFile>obj\Release\net6.0\SDKs.DjiImage.xml</DocumentationFile>
 	<PackageReleaseNotes>1、新增 LTCollection 类型，提供更多信息
-2、修改获取红外温度返回类型为LTCollection
+2、新增获取指定区域 LTCollection 的方法
 3、添加获取圆和椭圆温度方法</PackageReleaseNotes>
 	<Company>745424554@qq.com</Company>
 	<Product>$(AssemblyName).dll</Product>
