@@ -11,3 +11,5 @@
 /SDKs.DjiImage.Tests/obj
 /SDKs.DjiImage.Tests/bin
 /.vs
+/SDKs.DjiImage.Net45/obj
+/SDKs.DjiImage.Net45/bin

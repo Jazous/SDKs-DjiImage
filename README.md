@@ -16,6 +16,12 @@ PM> Install-Package SDKs.DjiImage
 PM> Install-Package SDKs.DjiImage.Net48
 ```
 
+.NET Framework 4.5.2
+
+```shell
+PM> Install-Package SDKs.DjiImage.Net45
+```
+
 ##### 2、下载 Dji TSDK 添加到项目中
 
 https://www.dji.com/cn/downloads/softwares/dji-thermal-sdk
