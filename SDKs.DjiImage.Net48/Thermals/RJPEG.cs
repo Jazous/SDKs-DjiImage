@@ -14,7 +14,7 @@ namespace SDKs.DjiImage.Thermals
     /// <summary>
     /// 大疆无人机 R-JPEG 热红外照片
     /// </summary>
-    /// <remarks>支持：禅思 H20N、禅思 Zenmuse XT S、禅思 Zenmuse H20 系列、经纬 M30 系列、御 2 行业进阶版</remarks>
+    /// <remarks>支持：禅思 H20N、禅思 Zenmuse XT S、禅思 Zenmuse H20 系列、经纬 M30 系列、御 2 行业进阶版、DJI Mavic 3 行业系列</remarks>
     public sealed class RJPEG : IJPEG, IAreaTemperature
     {
         System.IntPtr _ph = System.IntPtr.Zero;

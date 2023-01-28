@@ -24,7 +24,7 @@ namespace SDKs.DjiImage
         static string GetStr(System.Text.RegularExpressions.Regex regex, System.Text.Encoding encoding, byte[] bytes, int sIndex, int ncount)
         {
             string str = encoding.GetString(bytes, sIndex, ncount);
-            var match = regex.Match(str);
+            var match = regex.Match(str, 0, str.Length);
             int tmpIndex = match.Index;
             if (match.Success)
             {
@@ -51,7 +51,7 @@ namespace SDKs.DjiImage
             var bytes = new byte[ncount];
             stream.Read(bytes, 0, ncount);
             string str = encoding.GetString(bytes);
-            var match = regex.Match(str);
+            var match = regex.Match(str, 0, str.Length);
             int tmpIndex = match.Index;
             if (match.Success)
             {
@@ -94,65 +94,65 @@ namespace SDKs.DjiImage
         internal static RdfDroneDji GetDroneDji(string text)
         {
             var meta = new RdfDroneDji();
-            var mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_Version);
+            var mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_Version, RegexOptions.CultureInvariant);
             if (mc.Success)
                 meta.Version = mc.Value.Split('=')[1].Trim('"');
 
-            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_Model);
+            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_Model, RegexOptions.CultureInvariant);
             if (mc.Success)
                 meta.Model = mc.Value.Split('=')[1].Trim('"');
 
-            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_GpsStatus);
+            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_GpsStatus, RegexOptions.CultureInvariant);
             if (mc.Success)
                 meta.GpsStatus = mc.Value.Split('=')[1].Trim('"');
 
-            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_GpsLatitude);
+            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_GpsLatitude, RegexOptions.CultureInvariant);
             if (mc.Success)
-                meta.GpsLatitude = decimal.Parse(mc.Value.Split('=')[1].Trim('"').Trim('+'));
+                meta.GpsLatitude = decimal.Parse(mc.Value.Split('=')[1].Trim('"').Trim('+'), System.Globalization.CultureInfo.InvariantCulture);
 
-            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_GpsLongitude);
+            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_GpsLongitude, RegexOptions.CultureInvariant);
             if (mc.Success)
-                meta.GpsLongitude = decimal.Parse(mc.Value.Split('=')[1].Trim('"').Trim('+'));
+                meta.GpsLongitude = decimal.Parse(mc.Value.Split('=')[1].Trim('"').Trim('+'), System.Globalization.CultureInfo.InvariantCulture);
 
-            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_GpsLongtitude);
+            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_GpsLongtitude, RegexOptions.CultureInvariant);
             if (mc.Success)
-                meta.GpsLongitude = decimal.Parse(mc.Value.Split('=')[1].Trim('"').Trim('+'));
+                meta.GpsLongitude = decimal.Parse(mc.Value.Split('=')[1].Trim('"').Trim('+'), System.Globalization.CultureInfo.InvariantCulture);
 
-            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_AbsoluteAltitude);
+            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_AbsoluteAltitude, RegexOptions.CultureInvariant);
             if (mc.Success)
-                meta.AbsoluteAltitude = decimal.Parse(mc.Value.Split('=')[1].Trim('"').Trim('+'));
+                meta.AbsoluteAltitude = decimal.Parse(mc.Value.Split('=')[1].Trim('"').Trim('+'), System.Globalization.CultureInfo.InvariantCulture);
 
-            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_RelativeAltitude);
+            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_RelativeAltitude, RegexOptions.CultureInvariant);
             if (mc.Success)
-                meta.RelativeAltitude = decimal.Parse(mc.Value.Split('=')[1].Trim('"').Trim('+'));
+                meta.RelativeAltitude = decimal.Parse(mc.Value.Split('=')[1].Trim('"').Trim('+'), System.Globalization.CultureInfo.InvariantCulture);
 
-            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_GimbalRollDegree);
+            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_GimbalRollDegree, RegexOptions.CultureInvariant);
             if (mc.Success)
-                meta.GimbalRollDegree = decimal.Parse(mc.Value.Split('=')[1].Trim('"').Trim('+'));
+                meta.GimbalRollDegree = decimal.Parse(mc.Value.Split('=')[1].Trim('"').Trim('+'), System.Globalization.CultureInfo.InvariantCulture);
 
-            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_GimbalYawDegree);
+            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_GimbalYawDegree, RegexOptions.CultureInvariant);
             if (mc.Success)
-                meta.GimbalYawDegree = decimal.Parse(mc.Value.Split('=')[1].Trim('"').Trim('+'));
+                meta.GimbalYawDegree = decimal.Parse(mc.Value.Split('=')[1].Trim('"').Trim('+'), System.Globalization.CultureInfo.InvariantCulture);
 
-            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_GimbalPitchDegree);
+            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_GimbalPitchDegree, RegexOptions.CultureInvariant);
             if (mc.Success)
-                meta.GimbalPitchDegree = decimal.Parse(mc.Value.Split('=')[1].Trim('"').Trim('+'));
+                meta.GimbalPitchDegree = decimal.Parse(mc.Value.Split('=')[1].Trim('"').Trim('+'), System.Globalization.CultureInfo.InvariantCulture);
 
-            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_FlightRollDegree);
+            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_FlightRollDegree, RegexOptions.CultureInvariant);
             if (mc.Success)
-                meta.FlightRollDegree = decimal.Parse(mc.Value.Split('=')[1].Trim('"').Trim('+'));
-            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_FlightYawDegree);
+                meta.FlightRollDegree = decimal.Parse(mc.Value.Split('=')[1].Trim('"').Trim('+'), System.Globalization.CultureInfo.InvariantCulture);
+            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_FlightYawDegree, RegexOptions.CultureInvariant);
 
             if (mc.Success)
-                meta.FlightYawDegree = decimal.Parse(mc.Value.Split('=')[1].Trim('"').Trim('+'));
+                meta.FlightYawDegree = decimal.Parse(mc.Value.Split('=')[1].Trim('"').Trim('+'), System.Globalization.CultureInfo.InvariantCulture);
 
-            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_FlightPitchDegree);
+            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_FlightPitchDegree, RegexOptions.CultureInvariant);
             if (mc.Success)
-                meta.FlightPitchDegree = decimal.Parse(mc.Value.Split('=')[1].Trim('"').Trim('+'));
+                meta.FlightPitchDegree = decimal.Parse(mc.Value.Split('=')[1].Trim('"').Trim('+'), System.Globalization.CultureInfo.InvariantCulture);
 
-            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_RtkFlag);
+            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_RtkFlag, RegexOptions.CultureInvariant);
             if (mc.Success)
-                meta.RtkFlag = int.Parse(mc.Value.Split('=')[1].Trim('"'));
+                meta.RtkFlag = int.Parse(mc.Value.Split('=')[1].Trim('"'), System.Globalization.CultureInfo.InvariantCulture);
 
             return meta;
         }
