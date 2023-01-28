@@ -26,13 +26,13 @@ PM> Install-Package SDKs.DjiImage.Net45
 
 https://www.dji.com/cn/downloads/softwares/dji-thermal-sdk
 
-dji_thermal_sdk_v1.3_20220517.zip
+dji_thermal_sdk_v1.4_20220929.zip
 
-Linux ：*libdirp.so、libv_dirp.so、libv_girp.so、libv_iirp.so、libv_list.ini*
+Linux ：*libdirp.so、libv_cirp.so、libv_dirp.so、libv_girp.so、libv_iirp.so、libv_list.ini*
 
-Windows：*libdirp.dll、libv_dirp.dll、ibv_girp.dll、libv_iirp.dll、libv_list.ini*
+Windows：*libdirp.dll、libv_cirp.dll、libv_dirp.dll、ibv_girp.dll、libv_iirp.dll、libv_list.ini*
 
-下载后将对应 `lib` 目录下的 `ini`、`.dll` 和 `.so` 文件拷贝到执行程序根目录下
+下载后解压，并将对应 `tsdk-core\lib` 目录下的 `libv_list.ini`、`*.dll` 和 `*.so` 文件拷贝到执行程序根目录下
 
 ##### 3、使用例子
 

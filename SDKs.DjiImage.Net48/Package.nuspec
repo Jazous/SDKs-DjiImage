@@ -2,14 +2,14 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
 	<metadata>
 		<id>SDKs.DjiImage.Net48</id>
-		<version>1.3.2</version>
+		<version>1.4.0</version>
 		<authors>jazous</authors>
 		<requireLicenseAcceptance>true</requireLicenseAcceptance>
 		<license type="expression">MIT</license>
 		<projectUrl>https://github.com/Jazous</projectUrl>
 		<description>Dji TSDK for .NET4.8</description>
-		<releaseNotes>Fix some bugs.</releaseNotes>
-		<copyright>Copyright ©jazous 2022</copyright>
+		<releaseNotes>修复解析图像时因区域产生的问题</releaseNotes>
+		<copyright>Copyright (c) 2022-2023 Jazous</copyright>
 		<tags>dji,thermal,r-jpeg</tags>
 		<language>zh</language>
 		<dependencies>
