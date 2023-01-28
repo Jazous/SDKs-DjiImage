@@ -76,27 +76,29 @@ namespace SDKs.DjiImage
 
             return GetStr(regex, encoding, stream, nextIndex, nextcount);
         }
-        internal static RdfDroneDji GetDroneDji(System.IO.Stream stream, bool leaveOpen = false)
+        internal static RdfDroneDji? GetDroneDji(System.IO.Stream stream, bool leaveOpen = false)
         {
             var encoding = System.Text.Encoding.ASCII;
             int len = (int)stream.Length;
             string str = GetStr(new System.Text.RegularExpressions.Regex(rdf_Description, RegexOptions.Multiline), encoding, stream, 0, len > 0x2800 ? 0x2800 : len);
             if (!leaveOpen)
                 stream.Close();
-            return string.IsNullOrEmpty(str) ? RdfDroneDji.Empty : GetDroneDji(str);
+            return string.IsNullOrEmpty(str) ? null : GetDroneDji(str);
         }
-        internal static RdfDroneDji GetDroneDji(byte[] bytes)
+        internal static RdfDroneDji? GetDroneDji(byte[] bytes)
         {
             var encoding = System.Text.Encoding.ASCII;
             string str = GetStr(new System.Text.RegularExpressions.Regex(rdf_Description, RegexOptions.Multiline), encoding, bytes, 0, bytes.Length > 0x2800 ? 0x2800 : bytes.Length);
-            return string.IsNullOrEmpty(str) ? RdfDroneDji.Empty : GetDroneDji(str);
+            return string.IsNullOrEmpty(str) ? null : GetDroneDji(str);
         }
-        internal static RdfDroneDji GetDroneDji(string text)
+        internal static RdfDroneDji? GetDroneDji(string text)
         {
-            var meta = new RdfDroneDji();
             var mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_Version, RegexOptions.CultureInvariant);
-            if (mc.Success)
-                meta.Version = mc.Value.Split('=')[1].Trim('"');
+            if (!mc.Success)
+                return null;
+
+            var meta = new RdfDroneDji();
+            meta.Version = mc.Value.Split('=')[1].Trim('"');
 
             mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_Model, RegexOptions.CultureInvariant);
             if (mc.Success)

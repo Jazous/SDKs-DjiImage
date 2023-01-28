@@ -22,7 +22,9 @@ namespace SDKs.DjiImage.Thermals
         bool _isEmpty;
         object _syncRoot;
         Location? _baryCentre;
-       
+        List<Location> _mintemploc;
+        List<Location> _maxtemploc;
+
         /// <summary>
         /// 创建集合新实例
         /// </summary>
@@ -39,6 +41,8 @@ namespace SDKs.DjiImage.Thermals
             _mintemp = float.NaN;
             _maxtemp = float.NaN;
             _tempsum = 0;
+            _mintemploc = new List<Location>();
+            _maxtemploc = new List<Location>();
             _syncRoot = null;
             _isEmpty = true;
         }
@@ -107,6 +111,14 @@ namespace SDKs.DjiImage.Thermals
         /// 垂直方向最大位置
         /// </summary>
         public int Bottom => _bottom;
+        /// <summary>
+        /// 图片最低温度位置
+        /// </summary>
+        public Location[] MinTempLocs => _mintemploc.Distinct().ToArray();
+        /// <summary>
+        /// 图片最高温度位置
+        /// </summary>
+        public Location[] MaxTempLocs => _maxtemploc.Distinct().ToArray();
         /// <summary>
         /// 集合元素数量
         /// </summary>
@@ -181,10 +193,26 @@ namespace SDKs.DjiImage.Thermals
             _tempsum += entry.Temp;
 
             if (_mintemp > entry.Temp)
+            {
                 _mintemp = entry.Temp;
+                _mintemploc.Clear();
+                _mintemploc.Add(new Location(entry.Left, entry.Top));
+            }
+            else if (_mintemp == entry.Temp)
+            {
+                _mintemploc.Add(new Location(entry.Left, entry.Top));
+            }
 
             if (_maxtemp < entry.Temp)
+            {
                 _maxtemp = entry.Temp;
+                _maxtemploc.Clear();
+                _maxtemploc.Add(new Location(entry.Left, entry.Top));
+            }
+            else if (_maxtemp == entry.Temp)
+            {
+                _maxtemploc.Add(new Location(entry.Left, entry.Top));
+            }
 
             _entries.Add(entry);
         }

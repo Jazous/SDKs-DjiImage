@@ -24,8 +24,22 @@ namespace SDKs.DjiImage.Thermals
         float _avgtemp;
         int _width;
         int _height;
+        Location[] _mintemploc;
+        Location[] _maxtemploc;
         RdfDroneDji _droneDji;
         MeasureParam _params;
+
+        /// <summary>
+        /// 获取指定位置的温度
+        /// </summary>
+        /// <param name="left">距离图片左边的位置，范围：0 ~ Width - 1。</param>
+        /// <param name="top">距离图片上边的位置，范围：0 ~ Height - 1。</param>
+        /// <returns>该位置的温度。</returns>
+        /// <exception cref="System.IndexOutOfRangeException"></exception>
+        public float this[int left, int top]
+        {
+            get { return _mData[left, top]; }
+        }
 
         /// <summary>
         /// 图像宽度
@@ -55,6 +69,14 @@ namespace SDKs.DjiImage.Thermals
         /// XMP Meta drone-dji 信息
         /// </summary>
         public RdfDroneDji DroneDji => _droneDji;
+        /// <summary>
+        /// 图片最低温度位置
+        /// </summary>
+        public Location[] MinTempLocs => _mintemploc;
+        /// <summary>
+        /// 图片最高温度位置
+        /// </summary>
+        public Location[] MaxTempLocs => _maxtemploc;
 
 
         private RJPEG()
@@ -99,7 +121,7 @@ namespace SDKs.DjiImage.Thermals
             int code = img.Load(buffer);
             if (code == 0)
             {
-                img._droneDji = Rdf.GetDroneDji(buffer);
+                img._droneDji = Rdf.GetDroneDji(buffer).Value;
                 return img;
             }
             img.Dispose();
@@ -124,7 +146,7 @@ namespace SDKs.DjiImage.Thermals
             int code = img.Load(bytes);
             if (code == 0)
             {
-                img._droneDji = Rdf.GetDroneDji(bytes);
+                img._droneDji = Rdf.GetDroneDji(bytes).Value;
                 return img;
             }
             img.Dispose();
@@ -156,7 +178,7 @@ namespace SDKs.DjiImage.Thermals
             int code = img.Load(buffer);
             if (code == 0)
             {
-                img._droneDji = Rdf.GetDroneDji(buffer);
+                img._droneDji = Rdf.GetDroneDji(buffer).Value;
                 return img;
             }
             img.Dispose();
@@ -180,11 +202,28 @@ namespace SDKs.DjiImage.Thermals
             int code = img.Load(bytes);
             if (code == 0)
             {
-                img._droneDji = Rdf.GetDroneDji(bytes);
+                img._droneDji = Rdf.GetDroneDji(bytes).Value;
                 return img;
             }
             img.Dispose();
             return null;
+        }
+        /// <summary>
+        /// 验证指定字节数组是否是大疆热红外照片
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        public static bool IsRJPEG(byte[] bytes)
+        {
+            IntPtr ph = IntPtr.Zero;
+            int code = _tsdk.dirp_create_from_rjpeg(bytes, bytes.Length, ref ph);
+            if (code == 0)
+            {
+                _tsdk.dirp_destroy(ph);
+                ph = System.IntPtr.Zero;
+                return true;
+            }
+            return false;
         }
         int Load(byte[] bytes)
         {
@@ -208,6 +247,59 @@ namespace SDKs.DjiImage.Thermals
                 _mData = Cast(buffer, res.width, res.height);
             }
             return code;
+        }
+        float[,] Cast(byte[] rawData, int width, int height)
+        {
+            var result = new float[width, height];
+            int index = 0;
+            int i, j;
+            byte[] arr = new byte[2] { rawData[0], rawData[1] };
+            float temp = System.MathF.Round(System.BitConverter.ToInt16(arr, 0) * 0.100000f, 1);
+            float mintemp = temp;
+            float maxtemp = temp;
+            float sumTemp = 0;
+            var mintemploc = new List<Location>();
+            var maxtemploc = new List<Location>();
+            for (j = 0; j < height; j++)
+            {
+                for (i = 0; i < width; i++)
+                {
+                    arr[0] = rawData[index];
+                    arr[1] = rawData[index + 1];
+                    index += 2;
+                    temp = System.MathF.Round(System.BitConverter.ToInt16(arr, 0) * 0.100000f, 1);
+
+                    result[i, j] = temp;
+                    sumTemp += temp;
+                    if (mintemp > temp)
+                    {
+                        mintemp = temp;
+                        mintemploc.Clear();
+                        mintemploc.Add(new Location(i, j));
+                    }
+                    else if (mintemp == temp)
+                    {
+                        mintemploc.Add(new Location(i, j));
+                    }
+
+                    if (maxtemp < temp)
+                    {
+                        maxtemp = temp;
+                        maxtemploc.Clear();
+                        maxtemploc.Add(new Location(i, j));
+                    }
+                    else if (maxtemp == temp)
+                    {
+                        maxtemploc.Add(new Location(i, j));
+                    }
+                }
+            }
+            this._mintemp = mintemp;
+            this._maxtemp = maxtemp;
+            this._mintemploc = mintemploc.Distinct().ToArray();
+            this._maxtemploc = maxtemploc.Distinct().ToArray();
+            this._avgtemp = System.MathF.Round(sumTemp / result.Length, 1);
+            return result;
         }
 
         /// <summary>
@@ -257,7 +349,7 @@ namespace SDKs.DjiImage.Thermals
             return result;
         }
         /// <summary>
-        /// 获取图片指定位置的温度
+        /// 获取图片指定位置的温度，超出图像范围返回 float.NaN
         /// </summary>
         /// <param name="p"></param>
         /// <returns></returns>
@@ -266,7 +358,7 @@ namespace SDKs.DjiImage.Thermals
             return GetTemp(p.Left, p.Top);
         }
         /// <summary>
-        /// 获取图片指定位置的温度
+        /// 获取图片指定位置的温度，超出图像范围返回 float.NaN
         /// </summary>
         /// <param name="left"></param>
         /// <param name="top"></param>
@@ -559,7 +651,7 @@ namespace SDKs.DjiImage.Thermals
         /// <returns></returns>
         public AreaTemperature GetCircleTemp(Location p, int radius)
         {
-            return GetEllipseTemp(p.Left, p.Top, radius, radius);
+            return GetEllipseTemp(p.Left, p.Top, radius, radius); 
         }
         /// <summary>
         /// 获取图像指定圆内的温度
@@ -694,37 +786,6 @@ namespace SDKs.DjiImage.Thermals
                 }
             }
             return new AreaTemperature(mintemp, maxtemp, System.MathF.Round(sumtemp / sumcount, 1));
-        }
-        float[,] Cast(byte[] rawData, int width, int height)
-        {
-            var result = new float[width, height];
-            int index = 0;
-            int i, j;
-            byte[] arr = new byte[2] { rawData[0], rawData[1] };
-            float temp = System.MathF.Round(System.BitConverter.ToInt16(arr, 0) * 0.100000f, 1);
-            float mintemp = temp;
-            float maxtemp = temp;
-            float sumTemp = 0;
-            for (j = 0; j < height; j++)
-            {
-                for (i = 0; i < width; i++)
-                {
-                    arr[0] = rawData[index];
-                    arr[1] = rawData[index + 1];
-                    index += 2;
-                    temp = System.MathF.Round(System.BitConverter.ToInt16(arr, 0) * 0.100000f, 1);
-                    result[i, j] = temp;
-                    sumTemp += temp;
-                    if (mintemp > temp)
-                        mintemp = temp;
-                    if (maxtemp < temp)
-                        maxtemp = temp;
-                }
-            }
-            this._mintemp = mintemp;
-            this._maxtemp = maxtemp;
-            this._avgtemp = System.MathF.Round(sumTemp / result.Length, 1);
-            return result;
         }
         /// <summary>
         /// 释放资源
