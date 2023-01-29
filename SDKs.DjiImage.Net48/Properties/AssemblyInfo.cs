@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("745424554@qq.com")]
 [assembly: AssemblyProduct("SDKs.DjiImage.Net48.dll")]
-[assembly: AssemblyCopyright("Copyright ©jazous 2022")]
+[assembly: AssemblyCopyright("Copyright(c) 2022-2023 jazous")]
 [assembly: AssemblyTrademark("@jazous")]
 [assembly: AssemblyCulture("")]
 

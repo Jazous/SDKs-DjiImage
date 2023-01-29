@@ -54,6 +54,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="SkiaSharp" Version="2.88.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SDKs.DjiImage\SDKs.DjiImage.csproj" />
   </ItemGroup>
 

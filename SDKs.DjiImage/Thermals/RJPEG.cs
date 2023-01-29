@@ -9,6 +9,9 @@
 //        created by jazous at  03/09/2008 18:41:28
 //
 //====================================================================
+using System;
+using System.Collections.Generic;
+
 namespace SDKs.DjiImage.Thermals
 {
     /// <summary>
@@ -24,7 +27,6 @@ namespace SDKs.DjiImage.Thermals
         float _avgtemp;
         int _width;
         int _height;
-        Location[] _mintemploc;
         Location[] _maxtemploc;
         RdfDroneDji _droneDji;
         MeasureParam _params;
@@ -69,10 +71,6 @@ namespace SDKs.DjiImage.Thermals
         /// XMP Meta drone-dji 信息
         /// </summary>
         public RdfDroneDji DroneDji => _droneDji;
-        /// <summary>
-        /// 图片最低温度位置
-        /// </summary>
-        public Location[] MinTempLocs => _mintemploc;
         /// <summary>
         /// 图片最高温度位置
         /// </summary>
@@ -258,7 +256,6 @@ namespace SDKs.DjiImage.Thermals
             float mintemp = temp;
             float maxtemp = temp;
             float sumTemp = 0;
-            var mintemploc = new List<Location>();
             var maxtemploc = new List<Location>();
             for (j = 0; j < height; j++)
             {
@@ -271,16 +268,6 @@ namespace SDKs.DjiImage.Thermals
 
                     result[i, j] = temp;
                     sumTemp += temp;
-                    if (mintemp > temp)
-                    {
-                        mintemp = temp;
-                        mintemploc.Clear();
-                        mintemploc.Add(new Location(i, j));
-                    }
-                    else if (mintemp == temp)
-                    {
-                        mintemploc.Add(new Location(i, j));
-                    }
 
                     if (maxtemp < temp)
                     {
@@ -296,7 +283,6 @@ namespace SDKs.DjiImage.Thermals
             }
             this._mintemp = mintemp;
             this._maxtemp = maxtemp;
-            this._mintemploc = mintemploc.Distinct().ToArray();
             this._maxtemploc = maxtemploc.Distinct().ToArray();
             this._avgtemp = System.MathF.Round(sumTemp / result.Length, 1);
             return result;
@@ -497,7 +483,7 @@ namespace SDKs.DjiImage.Thermals
                 if (maxx > w) maxx = w;
                 mintemp = _maxtemp;
                 maxtemp = _mintemp;
-               
+
                 int j1, j2;
                 float sumcount = 0;
                 decimal k = decimal.Divide(topB - topA, leftB - leftA);
@@ -651,7 +637,7 @@ namespace SDKs.DjiImage.Thermals
         /// <returns></returns>
         public AreaTemperature GetCircleTemp(Location p, int radius)
         {
-            return GetEllipseTemp(p.Left, p.Top, radius, radius); 
+            return GetEllipseTemp(p.Left, p.Top, radius, radius);
         }
         /// <summary>
         /// 获取图像指定圆内的温度
@@ -700,7 +686,7 @@ namespace SDKs.DjiImage.Thermals
             int miny = top - b;
             if (miny < 0) miny = 0;
             int maxy = top + b;
-            if (maxy > w) maxy = w;
+            if (maxy > h) maxy = h;
 
             float temp;
             float aa = a * a;
@@ -787,6 +773,104 @@ namespace SDKs.DjiImage.Thermals
             }
             return new AreaTemperature(mintemp, maxtemp, System.MathF.Round(sumtemp / sumcount, 1));
         }
+        /// <summary>
+        /// 过滤指定集合中满足指定边缘温差阈值设定的温度点集合。
+        /// </summary>
+        /// <param name="entries">需要对其过滤的集合。</param>
+        /// <param name="radius">温差限定半径。</param>
+        /// <param name="dtemp">边缘温差阈值。</param>
+        /// <returns></returns>
+        /// <remarks>
+        /// 以集合中每个点为圆心，满足指定像素半径范围内温差小于指定温度的点，并对该点按照温差阈值进行边缘扩展计算，并将得到的点进行排除。
+        /// </remarks>
+        public LTCollection Filter(IList<LTEntry> entries, int radius, float dtemp)
+        {
+            var dataList = new List<LTEntry>();
+            Parallel.For(0, entries.Count, i =>
+            {
+                var entry = entries[i];
+                var circle = GetCircle(entry.Left, entry.Top, radius);
+                if ((circle.MaxTemp - circle.MinTemp) <= dtemp)
+                    return;
+
+                dataList.Add(entry);
+            });
+            var result = new LTCollection(dataList.Count);
+            result.AddRange(dataList);
+            return result;
+        }
+        List<LTEntry> GetSequenceArea(LTEntry entry, float dtemp)
+        {
+            List<LTEntry> result = new List<LTEntry>();
+            float temp;
+
+            result.Add(entry);
+
+            for (int j = entry.Top + 1; j < Height; j++)
+            {
+                temp = _mData[entry.Left, j];
+                if (Math.Abs(entry.Temp - temp) > dtemp)
+                    break;
+
+                result.Add(new LTEntry(entry.Left, j, temp));
+            }
+            for (int j = entry.Top - 1; j >= 0; j--)
+            {
+                temp = _mData[entry.Left, j];
+                if (Math.Abs(entry.Temp - temp) > dtemp)
+                    break;
+
+                result.Add(new LTEntry(entry.Left, j, temp));
+            }
+
+            //右下延申
+            for (int i = entry.Left + 1; i < Width; i++)
+            {
+                for (int j = entry.Top; j < Height; j++)
+                {
+                    temp = _mData[i, j];
+                    if (Math.Abs(entry.Temp - temp) > dtemp)
+                        break;
+                    result.Add(new LTEntry(i, j, temp));
+                }
+            }
+            //左上延申
+            for (int i = entry.Left - 1; i >= 0; i--)
+            {
+                for (int j = entry.Top; j >= 0; j--)
+                {
+                    temp = _mData[i, j];
+                    if (Math.Abs(entry.Temp - temp) > dtemp)
+                        break;
+                    result.Add(new LTEntry(i, j, temp));
+                }
+            }
+            //左下延申
+            for (int i = entry.Left - 1; i >= 0; i--)
+            {
+                for (int j = entry.Top; j < Height; j++)
+                {
+                    temp = _mData[i, j];
+                    if (Math.Abs(entry.Temp - temp) > dtemp)
+                        break;
+                    result.Add(new LTEntry(i, j, temp));
+                }
+            }
+            //右上延申
+            for (int i = entry.Left + 1; i < Width; i++)
+            {
+                for (int j = entry.Top; j >= 0; j--)
+                {
+                    temp = _mData[i, j];
+                    if (Math.Abs(entry.Temp - temp) > dtemp)
+                        break;
+                    result.Add(new LTEntry(i, j, temp));
+                }
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// 释放资源
         /// </summary>

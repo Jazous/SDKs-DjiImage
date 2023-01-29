@@ -293,5 +293,45 @@ namespace SDKs.DjiImage.Thermals
         {
             ((ICollection)_entries).CopyTo(array, index);
         }
+
+        /// <summary>
+        /// 以指定像素的网格将集合拆分为多个小集合
+        /// </summary>
+        /// <param name="size">网格像素大小。</param>
+        public List<LTCollection> Split(int size)
+        {
+            int wc = (Right - Left) / size + 1;
+            int hc = (Bottom - Top) / size + 1;
+
+            List<LTCollection> result = new List<LTCollection>();
+            int imax = wc - 1;
+            int jmax = hc - 1;
+            for (int i = 0; i <= imax; i++)
+            {
+                for (int j = 0; j <= jmax; j++)
+                {
+                    int sx = Left + i * size;
+                    int sy = Top + j * size;
+
+                    int ex = sx + size;
+                    int ey = sy + size;
+
+                    //最后一个包含边界上的点
+                    if (i == imax)
+                        ex = ex + 1;
+                    if (j == jmax)
+                        ey = ey + 1;
+
+                    var items = _entries.Where(c => c.Left >= sx && c.Left < ex && c.Top >= sy && c.Top < ey).ToList();
+                    if (items.Count == 0)
+                        continue;
+
+                    var ltc = new LTCollection(items.Count);
+                    ltc.AddRange(items);
+                    result.Add(ltc);
+                }
+            }
+            return result;
+        }
     }
 }

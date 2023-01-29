@@ -78,8 +78,6 @@ namespace SDKs.DjiImage
         /// <param name="stream">图片字节流</param>
         /// <param name="leaveOpen">使用完后是否关闭流</param>
         /// <returns>解析失败返回 null</returns>
-        /// <exception cref="System.ArgumentNullException"></exception>
-        /// <exception cref="System.ArgumentException"></exception>
         public static VJPEG TryParse(System.IO.Stream stream, bool leaveOpen = false)
         {
             if (stream == null || stream == System.IO.Stream.Null || stream.Length == 0)

@@ -12,6 +12,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SDKs.DjiImage.Thermals
 {
@@ -28,7 +29,6 @@ namespace SDKs.DjiImage.Thermals
         float _avgtemp;
         int _width;
         int _height;
-        Location[] _mintemploc;
         Location[] _maxtemploc;
         RdfDroneDji _droneDji;
         MeasureParam _params;
@@ -73,10 +73,6 @@ namespace SDKs.DjiImage.Thermals
         /// XMP Meta drone-dji 信息
         /// </summary>
         public RdfDroneDji DroneDji => _droneDji;
-        /// <summary>
-        /// 图片最低温度位置
-        /// </summary>
-        public Location[] MinTempLocs => _mintemploc;
         /// <summary>
         /// 图片最高温度位置
         /// </summary>
@@ -261,7 +257,6 @@ namespace SDKs.DjiImage.Thermals
             float mintemp = temp;
             float maxtemp = temp;
             float sumTemp = 0;
-            var mintemploc = new List<Location>();
             var maxtemploc = new List<Location>();
             for (j = 0; j < height; j++)
             {
@@ -273,16 +268,6 @@ namespace SDKs.DjiImage.Thermals
                     temp = float.Parse((System.BitConverter.ToInt16(arr, 0) * 0.100000f).ToString("f1"));
                     result[i, j] = temp;
                     sumTemp += temp;
-                    if (mintemp > temp)
-                    {
-                        mintemp = temp;
-                        mintemploc.Clear();
-                        mintemploc.Add(new Location(i, j));
-                    }
-                    else if (mintemp == temp)
-                    {
-                        mintemploc.Add(new Location(i, j));
-                    }
 
                     if (maxtemp < temp)
                     {
@@ -298,7 +283,6 @@ namespace SDKs.DjiImage.Thermals
             }
             this._mintemp = mintemp;
             this._maxtemp = maxtemp;
-            this._mintemploc = mintemploc.Distinct().ToArray();
             this._maxtemploc = maxtemploc.Distinct().ToArray();
             this._avgtemp = float.Parse((sumTemp / result.Length).ToString("f1"));
             return result;
@@ -702,7 +686,7 @@ namespace SDKs.DjiImage.Thermals
             int miny = top - b;
             if (miny < 0) miny = 0;
             int maxy = top + b;
-            if (maxy > w) maxy = w;
+            if (maxy > h) maxy = h;
 
             float temp;
             float aa = a * a;
@@ -788,6 +772,32 @@ namespace SDKs.DjiImage.Thermals
                 }
             }
             return new AreaTemperature(mintemp, maxtemp, float.Parse((sumtemp / sumcount).ToString("f1")));
+        }
+        /// <summary>
+        /// 过滤指定集合中满足指定边缘温差阈值设定的温度点集合。
+        /// </summary>
+        /// <param name="entries">需要对其过滤的集合。</param>
+        /// <param name="radius">温差限定半径。</param>
+        /// <param name="dtemp">边缘温差阈值。</param>
+        /// <returns></returns>
+        /// <remarks>
+        /// 以集合中每个点为圆心，满足指定像素半径范围内温差小于指定温度的点，并对该点按照温差阈值进行边缘扩展计算，并将得到的点进行排除。
+        /// </remarks>
+        public LTCollection Filter(IList<LTEntry> entries, int radius, float dtemp)
+        {
+            var dataList = new List<LTEntry>();
+            Parallel.For(0, entries.Count, i =>
+            {
+                var entry = entries[i];
+                var circle = GetCircle(entry.Left, entry.Top, radius);
+                if ((circle.MaxTemp - circle.MinTemp) <= dtemp)
+                    return;
+
+                dataList.Add(entry);
+            });
+            var result = new LTCollection(dataList.Count);
+            result.AddRange(dataList);
+            return result;
         }
         /// <summary>
         /// 释放资源
