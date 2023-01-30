@@ -20,7 +20,7 @@ namespace SDKs.DjiImage.Thermals
         int _right;
         int _bottom;
         bool _isEmpty;
-        object _syncRoot;
+        object _syncRoot = null;
         Location? _baryCentre;
         List<Location> _mintemploc;
         List<Location> _maxtemploc;
@@ -162,31 +162,20 @@ namespace SDKs.DjiImage.Thermals
         /// <param name="entry"></param>
         public void Add(LTEntry entry)
         {
-            if (_isEmpty)
+            if (_entries.Count == 0)
             {
-                _mintemp = entry.Temp;
-                _maxtemp = entry.Temp;
-                _left = entry.Left;
-                _top = entry.Top;
-                _right = entry.Left;
-                _bottom = entry.Top;
-                _isEmpty = false;
+                _mintemp = _maxtemp = entry.Temp;
+                _left = _right = entry.Left;
+                _top = _bottom = entry.Top;
             }
-            InterAdd(entry);
+            InternalAdd(entry);
         }
-        void InterAdd(LTEntry entry)
+        void InternalAdd(LTEntry entry)
         {
-            if (entry.Left < _left)
-                _left = entry.Left;
-
-            if (entry.Left > _right)
-                _right = entry.Left;
-
-            if (entry.Top < _top)
-                _top = entry.Top;
-
-            if (entry.Top > _bottom)
-                _bottom = entry.Top;
+            if (entry.Left < _left) _left = entry.Left;
+            if (entry.Left > _right) _right = entry.Left;
+            if (entry.Top < _top) _top = entry.Top;
+            if (entry.Top > _bottom) _bottom = entry.Top;
 
             _leftsum += entry.Left;
             _topsum += entry.Top;
@@ -225,20 +214,16 @@ namespace SDKs.DjiImage.Thermals
             if (entries == null || entries.Count == 0)
                 return;
 
-            if (_isEmpty)
+            if (_entries.Count == 0)
             {
                 var entry = entries[0];
-                _mintemp = entry.Temp;
-                _maxtemp = entry.Temp;
-                _left = entry.Left;
-                _top = entry.Top;
-                _right = entry.Left;
-                _bottom = entry.Top;
-                _isEmpty = false;
+                _mintemp = _maxtemp = entry.Temp;
+                _left = _right = entry.Left;
+                _top = _bottom = entry.Top;
             }
 
             for (int i = 0; i < entries.Count; i++)
-                InterAdd(entries[i]);
+                InternalAdd(entries[i]);
         }
         /// <summary>
         /// 返回循环访问集合的枚举数
@@ -293,45 +278,92 @@ namespace SDKs.DjiImage.Thermals
         {
             ((ICollection)_entries).CopyTo(array, index);
         }
-
         /// <summary>
         /// 以指定像素的网格将集合拆分为多个小集合
         /// </summary>
         /// <param name="size">网格像素大小。</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public List<LTCollection> Split(int size)
         {
-            int wc = (Right - Left) / size + 1;
-            int hc = (Bottom - Top) / size + 1;
+            if (_entries.Count == 0)
+                return Enumerable.Empty<LTCollection>().ToList();
 
-            List<LTCollection> result = new List<LTCollection>();
-            int imax = wc - 1;
-            int jmax = hc - 1;
-            for (int i = 0; i <= imax; i++)
+            if (size <= 0)
+                throw new ArgumentOutOfRangeException(nameof(size), "The size must be a positive integer.");
+
+            int dx = Right - Left;
+            int dy = Bottom - Top;
+
+            int xc = dx / size + ((dx % size) == 0 ? 0 : 1);
+            int yc = dy / size + ((dy % size) == 0 ? 0 : 1);
+
+            var result = new List<LTCollection>();
+            if (xc == 1 && yc == 1)
             {
-                for (int j = 0; j <= jmax; j++)
+                result.Add(this.Clone());
+                return result;
+            }
+
+            var items = _entries.ToList();
+            int x = Left;
+            int y = Top;
+            for (int i = 0; i <= xc; i++)
+            {
+                for (int j = 0; j <= yc; j++)
                 {
-                    int sx = Left + i * size;
-                    int sy = Top + j * size;
+                    int sx = x + i * size;
+                    int sy = y + j * size;
 
                     int ex = sx + size;
                     int ey = sy + size;
 
-                    //最后一个包含边界上的点
-                    if (i == imax)
-                        ex = ex + 1;
-                    if (j == jmax)
-                        ey = ey + 1;
-
-                    var items = _entries.Where(c => c.Left >= sx && c.Left < ex && c.Top >= sy && c.Top < ey).ToList();
+                    var coll = new LTCollection();
+                    for (int k = 0; k < items.Count; k++)
+                    {
+                        var item = items[k];
+                        if (item.Left >= sx && item.Left <= ex && item.Top >= sy && item.Top <= ey)
+                            coll.Add(item);
+                    }
+                    if (coll._entries.Count > 0)
+                    {
+                        //移除已处理的点
+                        for (int m = 0; m < coll._entries.Count; m++)
+                            items.Remove(coll._entries[m]);
+                        result.Add(coll);
+                    }
                     if (items.Count == 0)
-                        continue;
-
-                    var ltc = new LTCollection(items.Count);
-                    ltc.AddRange(items);
-                    result.Add(ltc);
+                        break;
                 }
+                if (items.Count == 0)
+                    break;
             }
             return result;
+        }
+        /// <summary>
+        /// 创建当前对象的副本。
+        /// </summary>
+        /// <returns></returns>
+        public LTCollection Clone()
+        {
+            var coll = new LTCollection(this.Count);
+            coll._entries = this._entries;
+            coll._leftsum = this._leftsum;
+            coll._topsum = this._topsum;
+            coll._tempsum = this._tempsum;
+            coll._mintemp = this._mintemp;
+            coll._maxtemp = this._maxtemp;
+
+            coll._left = this._left;
+            coll._top = this._top;
+            coll._right = this._right;
+            coll._bottom = this._bottom;
+            coll._isEmpty = this._isEmpty;
+            coll._syncRoot = null;
+            coll._baryCentre = this._baryCentre;
+            coll._mintemploc = this._mintemploc;
+            coll._maxtemploc = this._maxtemploc;
+            return coll;
         }
     }
 }

@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <None Remove="1.JPG" />
+    <None Remove="2.JPG" />
     <None Remove="libdirp.dll" />
     <None Remove="libdirp.so" />
     <None Remove="libv_dirp.dll" />
@@ -22,6 +23,9 @@
 
   <ItemGroup>
     <Content Include="1.JPG">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="2.JPG">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="libdirp.dll">

@@ -27,7 +27,7 @@ namespace SDKs.DjiImage.Thermals
         float _avgtemp;
         int _width;
         int _height;
-        Location[] _maxtemploc;
+        Location[] _maxtemploc = null;
         RdfDroneDji _droneDji;
         MeasureParam _params;
 
@@ -743,7 +743,7 @@ namespace SDKs.DjiImage.Thermals
             int miny = top - b;
             if (miny < 0) miny = 0;
             int maxy = top + b;
-            if (maxy > w) maxy = w;
+            if (maxy > h) maxy = h;
 
             float aa = a * a;
             float bb = b * b;
@@ -774,29 +774,35 @@ namespace SDKs.DjiImage.Thermals
             return new AreaTemperature(mintemp, maxtemp, System.MathF.Round(sumtemp / sumcount, 1));
         }
         /// <summary>
-        /// 过滤指定集合中满足指定边缘温差阈值设定的温度点集合。
+        /// 过滤指定集合中满足指定温差阈值设定的温度点集合。
         /// </summary>
         /// <param name="entries">需要对其过滤的集合。</param>
         /// <param name="radius">温差限定半径。</param>
-        /// <param name="dtemp">边缘温差阈值。</param>
+        /// <param name="dtemp">温差阈值。</param>
         /// <returns></returns>
         /// <remarks>
-        /// 以集合中每个点为圆心，满足指定像素半径范围内温差小于指定温度的点，并对该点按照温差阈值进行边缘扩展计算，并将得到的点进行排除。
+        /// 以集合中每个点为圆心，过滤出满足指定像素半径范围内温差大于指定温度的点。
         /// </remarks>
-        public LTCollection Filter(IList<LTEntry> entries, int radius, float dtemp)
+        /// <exception cref="System.ArgumentNullException"></exception>
+        public List<LTEntry> Filter(IEnumerable<LTEntry> entries, int radius, float dtemp)
         {
-            var dataList = new List<LTEntry>();
-            Parallel.For(0, entries.Count, i =>
-            {
-                var entry = entries[i];
-                var circle = GetCircle(entry.Left, entry.Top, radius);
-                if ((circle.MaxTemp - circle.MinTemp) <= dtemp)
-                    return;
+            if (entries == null)
+                throw new ArgumentNullException(nameof(entries));
+            if (radius <= 0)
+                throw new ArgumentException(nameof(radius), "The radius must be a positive integer.");
+            if (dtemp <= 0)
+                throw new ArgumentException(nameof(dtemp), "The dtemp must be a positive float.");
 
-                dataList.Add(entry);
+            if (!entries.Any())
+                return Enumerable.Empty<LTEntry>().ToList();
+
+            var result = new List<LTEntry>();
+            Parallel.ForEach(entries, entry =>
+            {
+                var circle = GetEllipseTemp(entry.Left, entry.Top, radius, radius);
+                if ((circle.MaxTemp - circle.MinTemp) > dtemp)
+                    result.Add(entry);
             });
-            var result = new LTCollection(dataList.Count);
-            result.AddRange(dataList);
             return result;
         }
         List<LTEntry> GetSequenceArea(LTEntry entry, float dtemp)
