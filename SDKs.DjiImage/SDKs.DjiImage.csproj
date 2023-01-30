@@ -29,7 +29,7 @@
 	<PackageReleaseNotes>
 		1、修复解析图像时因区域产生的问题
 		2、RJPEG 添加 Filter 方法，提供简单的温差阈值主体过滤法
-		3、RJPEG 添加 MinTempLocs 属性，用于获取最高温度点的位置
+		3、RJPEG 添加 MaxTempLocs 属性，用于获取最高温度点的位置
 		4、VJPEG 解析失败时抛出异常，并提供 TryParse 不抛异常方法
 		5、LTCollection 添加 Split 方法，用于拆分为多个小集合，方便绘制多个标记框
 		6、修复椭圆计算的bug
