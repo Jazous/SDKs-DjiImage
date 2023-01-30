@@ -63,6 +63,9 @@
     <Compile Include="VJPEG.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Package.nuspec">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="SDKs.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
