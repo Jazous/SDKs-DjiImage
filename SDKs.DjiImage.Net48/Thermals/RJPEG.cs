@@ -546,7 +546,7 @@ namespace SDKs.DjiImage.Thermals
             int miny = top;
             if (miny < 0) miny = 0;
             int maxy = bottom;
-            if (maxy > w) maxy = h;
+            if (maxy > h) maxy = h;
 
 
             for (int i = minx; i <= maxx; i++)
@@ -589,7 +589,7 @@ namespace SDKs.DjiImage.Thermals
             int miny = top;
             if (miny < 0) miny = 0;
             int maxy = bottom;
-            if (maxy > w) maxy = h;
+            if (maxy > h) maxy = h;
 
             float temp;
             float mintemp = _maxtemp;
@@ -702,7 +702,7 @@ namespace SDKs.DjiImage.Thermals
                     if (dx * dx * bb + dy * dy * aa < aabb)
                     {
                         temp = _mData[i, j];
-                        result.Add(j, j, temp);
+                        result.Add(i, j, temp);
                     }
                 }
             }
@@ -771,6 +771,9 @@ namespace SDKs.DjiImage.Thermals
                     }
                 }
             }
+            if (sumcount == 0)
+                return AreaTemperature.Empty;
+
             return new AreaTemperature(mintemp, maxtemp, float.Parse((sumtemp / sumcount).ToString("f1")));
         }
         /// <summary>

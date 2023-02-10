@@ -2,20 +2,13 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
 	<metadata>
 		<id>SDKs.DjiImage.Net45</id>
-		<version>1.4.0</version>
+		<version>1.4.1</version>
 		<authors>jazous</authors>
 		<requireLicenseAcceptance>true</requireLicenseAcceptance>
 		<license type="expression">MIT</license>
 		<projectUrl>https://github.com/Jazous</projectUrl>
 		<description>Dji TSDK for .NET4.5.2</description>
-		<releaseNotes>
-			1、修复解析图像时因区域产生的问题
-			2、RJPEG 添加 Filter 方法，提供简单的温差阈值主体过滤法
-			3、RJPEG 添加 MaxTempLocs 属性，用于获取最高温度点的位置
-			4、VJPEG 解析失败时抛出异常，并提供 TryParse 不抛异常方法
-			5、LTCollection 添加 Split 方法，用于拆分为多个小集合，方便绘制多个标记框
-			6、修复椭圆计算的bug
-		</releaseNotes>
+		<releaseNotes>1、修复获取矩形温度和矩形集合方法中矩形超出图片像素范围时的判断问题</releaseNotes>
 		<copyright>Copyright (c) 2022-2023 Jazous</copyright>
 		<tags>dji,thermal,r-jpeg</tags>
 		<language>zh</language>
