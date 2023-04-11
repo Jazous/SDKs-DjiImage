@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <SignAssembly>True</SignAssembly>
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-	<Version>1.4.1</Version>
+	<Version>1.4.2</Version>
 	<Authors>jazous</Authors>
 	<RepositoryUrl>https://github.com/Jazous/SDKs-DjiImage.git</RepositoryUrl>
 	<PackageProjectUrl>https://github.com/Jazous/SDKs-DjiImage</PackageProjectUrl>
@@ -26,7 +26,7 @@
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	<AssemblyOriginatorKeyFile>..\SDKs.snk</AssemblyOriginatorKeyFile>
 	<DocumentationFile>obj\Release\net6.0\SDKs.DjiImage.xml</DocumentationFile>
-	<PackageReleaseNotes>1、修复获取矩形温度和矩形集合方法中矩形超出图片像素范围时的判断问题</PackageReleaseNotes>
+	<PackageReleaseNotes>1、修复读取御2行业进阶版照片报错的问题</PackageReleaseNotes>
 	<Company>745424554@qq.com</Company>
 	<Product>$(AssemblyName).dll</Product>
   </PropertyGroup>

@@ -6,6 +6,7 @@ namespace SDKs.DjiImage
     {
         const string rdf_Description = "<rdf:Description";
         const string drone_dji_Version = "drone-dji:Version=[\"][\\d]+[.\\d]*[\"]";
+        const string drone_dji_Make = "tiff:Make=\"DJI\"";
         const string drone_dji_Model = "tiff:Model=[\"].+[\"]";
         const string drone_dji_GpsStatus = "drone-dji:GpsStatus=[\"].+[\"]";
         const string drone_dji_GpsLatitude = "drone-dji:GpsLatitude=[\"][-+]{0,1}\\d+[.\\d+]*[\"]";
@@ -20,6 +21,7 @@ namespace SDKs.DjiImage
         const string drone_dji_FlightYawDegree = "drone-dji:FlightYawDegree=[\"][-+]{0,1}\\d+[.\\d+]*[\"]";
         const string drone_dji_FlightPitchDegree = "drone-dji:FlightPitchDegree=[\"][-+]{0,1}\\d+[.\\d+]*[\"]";
         const string drone_dji_RtkFlag = "drone-dji:RtkFlag=[\"]\\d+[\"]";
+        const string drone_dji_RtkStdLon = "drone-dji:RtkStdLon=[\"]\\d+[.\\d+]*[\"]";
 
         static string GetStr(System.Text.RegularExpressions.Regex regex, System.Text.Encoding encoding, byte[] bytes, int sIndex, int ncount)
         {
@@ -93,12 +95,15 @@ namespace SDKs.DjiImage
         }
         internal static RdfDroneDji? GetDroneDji(string text)
         {
-            var mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_Version, RegexOptions.CultureInvariant);
+            var mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_Make, RegexOptions.CultureInvariant);
             if (!mc.Success)
                 return null;
 
             var meta = new RdfDroneDji();
-            meta.Version = mc.Value.Split('=')[1].Trim('"');
+
+            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_Version, RegexOptions.CultureInvariant);
+            if (mc.Success)
+                meta.Version = mc.Value.Split('=')[1].Trim('"');
 
             mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_Model, RegexOptions.CultureInvariant);
             if (mc.Success)
