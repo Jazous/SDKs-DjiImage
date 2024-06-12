@@ -121,7 +121,13 @@ namespace SDKs.DjiImage.Thermals
             int code = img.Load(buffer);
             if (code == 0)
             {
-                img._droneDji = Rdf.GetDroneDji(buffer).Value;
+                RdfDroneDji? imgDroneDji = Rdf.GetDroneDji(buffer);
+
+                if (imgDroneDji.HasValue)
+                {
+                    img._droneDji = imgDroneDji.Value;
+                }
+
                 return img;
             }
             img.Dispose();
@@ -146,7 +152,13 @@ namespace SDKs.DjiImage.Thermals
             int code = img.Load(bytes);
             if (code == 0)
             {
-                img._droneDji = Rdf.GetDroneDji(bytes).Value;
+                RdfDroneDji? imgDroneDji = Rdf.GetDroneDji(bytes);
+
+                if (imgDroneDji.HasValue)
+                {
+                    img._droneDji = imgDroneDji.Value;
+                }
+
                 return img;
             }
             img.Dispose();
@@ -178,7 +190,13 @@ namespace SDKs.DjiImage.Thermals
             int code = img.Load(buffer);
             if (code == 0)
             {
-                img._droneDji = Rdf.GetDroneDji(buffer).Value;
+                RdfDroneDji? imgDroneDji = Rdf.GetDroneDji(buffer);
+
+                if (imgDroneDji.HasValue)
+                {
+                    img._droneDji = imgDroneDji.Value;
+                }
+
                 return img;
             }
             img.Dispose();
@@ -202,7 +220,13 @@ namespace SDKs.DjiImage.Thermals
             int code = img.Load(bytes);
             if (code == 0)
             {
-                img._droneDji = Rdf.GetDroneDji(bytes).Value;
+                RdfDroneDji? imgDroneDji = Rdf.GetDroneDji(bytes);
+
+                if (imgDroneDji.HasValue)
+                {
+                    img._droneDji = imgDroneDji.Value;
+                }
+
                 return img;
             }
             img.Dispose();
