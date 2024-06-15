@@ -1,10 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,13 +13,20 @@
     <None Remove="2.JPG" />
     <None Remove="libdirp.dll" />
     <None Remove="libdirp.so" />
+    <None Remove="libexif.dll" />
+    <None Remove="libiconv-2.dll" />
+    <None Remove="libintl-8.dll" />
     <None Remove="libv_dirp.dll" />
     <None Remove="libv_dirp.so" />
     <None Remove="libv_girp.dll" />
     <None Remove="libv_girp.so" />
+    <None Remove="libv_hirp.dll" />
     <None Remove="libv_iirp.dll" />
     <None Remove="libv_iirp.so" />
     <None Remove="libv_list.ini" />
+    <None Remove="MicroIA_Release_x64.dll" />
+    <None Remove="MicroJPEG_Release_x64.dll" />
+    <None Remove="MicroTA_Release_x64.dll" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,6 +42,15 @@
     <Content Include="libdirp.so">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="libexif.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="libiconv-2.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="libintl-8.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="libv_dirp.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -46,6 +63,9 @@
     <Content Include="libv_girp.so">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="libv_hirp.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="libv_iirp.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -53,6 +73,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="libv_list.ini">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MicroIA_Release_x64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MicroJPEG_Release_x64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MicroTA_Release_x64.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
