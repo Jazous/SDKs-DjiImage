@@ -1,10 +1,10 @@
 ﻿namespace SDKs.DjiImage.Thermals
 {
-    static class _skdlinux
+    static class _sdklinux
     {
         const string dllName = "libdirp.so";
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
-        public extern static int dirp_create_from_rjpeg(byte[] data, int size, ref IntPtr ph);
+        public extern static int dirp_create_from_rjpeg(byte[] data, int size, ref System.IntPtr ph);
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
         public extern static int dirp_get_rjpeg_resolution(System.IntPtr h, ref dirp_resolution_t resolution);
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]

@@ -121,7 +121,7 @@ namespace SDKs.DjiImage.Thermals
             int code = img.Load(buffer);
             if (code == 0)
             {
-                img._droneDji = Rdf.GetDroneDji(buffer).Value;
+                img._droneDji = Rdf.GetDroneDji(buffer) ?? RdfDroneDji.Empty;
                 return img;
             }
             img.Dispose();
@@ -146,7 +146,7 @@ namespace SDKs.DjiImage.Thermals
             int code = img.Load(bytes);
             if (code == 0)
             {
-                img._droneDji = Rdf.GetDroneDji(bytes).Value;
+                img._droneDji = Rdf.GetDroneDji(bytes) ?? RdfDroneDji.Empty;
                 return img;
             }
             img.Dispose();
@@ -178,7 +178,7 @@ namespace SDKs.DjiImage.Thermals
             int code = img.Load(buffer);
             if (code == 0)
             {
-                img._droneDji = Rdf.GetDroneDji(buffer).Value;
+                img._droneDji = Rdf.GetDroneDji(buffer) ?? RdfDroneDji.Empty;
                 return img;
             }
             img.Dispose();
@@ -202,7 +202,7 @@ namespace SDKs.DjiImage.Thermals
             int code = img.Load(bytes);
             if (code == 0)
             {
-                img._droneDji = Rdf.GetDroneDji(bytes).Value;
+                img._droneDji = Rdf.GetDroneDji(bytes) ?? RdfDroneDji.Empty;
                 return img;
             }
             img.Dispose();
@@ -334,6 +334,14 @@ namespace SDKs.DjiImage.Thermals
                 }
             }
             return result;
+        }
+        /// <summary>
+        /// 获取缓冲区图片温度矩阵
+        /// </summary>
+        /// <returns></returns>
+        public float[,] GetTemp()
+        {
+            return _mData;
         }
         /// <summary>
         /// 获取图片指定位置的温度，超出图像范围返回 float.NaN
