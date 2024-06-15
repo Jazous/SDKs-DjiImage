@@ -239,12 +239,12 @@ namespace SDKs.DjiImage.Thermals
                 _tsdk.dirp_get_measurement_params(_ph, ref mp);
                 _params = mp;
 
-                int rawsize = res.width * res.height * 2;
+                int rawsize = _width * _height * 2;
                 byte[] buffer = new byte[rawsize];
                 _tsdk.dirp_measure(_ph, buffer, rawsize);
                 _tsdk.dirp_destroy(_ph);
                 _ph = System.IntPtr.Zero;
-                _mData = Cast(buffer, res.width, res.height);
+                _mData = Cast(buffer, _width, _height);
             }
             return code;
         }

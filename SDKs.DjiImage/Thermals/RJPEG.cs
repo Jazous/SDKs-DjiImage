@@ -9,9 +9,6 @@
 //        created by jazous at  03/09/2008 18:41:28
 //
 //====================================================================
-using System;
-using System.Collections.Generic;
-
 namespace SDKs.DjiImage.Thermals
 {
     /// <summary>
@@ -30,6 +27,7 @@ namespace SDKs.DjiImage.Thermals
         Location[] _maxtemploc = null;
         RdfDroneDji _droneDji;
         MeasureParam _params;
+        PseudoColor _pseudoColor;
 
         /// <summary>
         /// 获取指定位置的温度
@@ -56,6 +54,10 @@ namespace SDKs.DjiImage.Thermals
         /// </summary>
         public MeasureParam Params => _params;
         /// <summary>
+        /// 色阶风格
+        /// </summary>
+        public PseudoColor PseudoColor => _pseudoColor;
+        /// <summary>
         /// 图片最低温度
         /// </summary>
         public float MinTemp => _mintemp;
@@ -79,6 +81,7 @@ namespace SDKs.DjiImage.Thermals
 
         private RJPEG()
         {
+            
         }
         /// <summary>
         /// 从指定文件创建大疆热红外 R-JPEG 图片
@@ -233,16 +236,16 @@ namespace SDKs.DjiImage.Thermals
                 _width = res.width;
                 _height = res.height;
 
+                _tsdk.dirp_get_pseudo_color(_ph, ref _pseudoColor);
+
                 var mp = new MeasureParam();
                 _tsdk.dirp_get_measurement_params(_ph, ref mp);
                 _params = mp;
 
-                int rawsize = res.width * res.height * 2;
+                int rawsize = _width * _height * 2;
                 byte[] buffer = new byte[rawsize];
                 _tsdk.dirp_measure(_ph, buffer, rawsize);
-                _tsdk.dirp_destroy(_ph);
-                _ph = System.IntPtr.Zero;
-                _mData = Cast(buffer, res.width, res.height);
+                _mData = Cast(buffer, _width, _height);
             }
             return code;
         }
@@ -886,6 +889,62 @@ namespace SDKs.DjiImage.Thermals
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// 设置调色板风格
+        /// </summary>
+        /// <param name="color">色阶风格</param>
+        /// <returns></returns>
+        public bool SetPseudoColor(PseudoColor color)
+        {
+            return _tsdk.dirp_set_pseudo_color(_ph, color) == 0;
+        }
+        /// <summary>
+        /// 设置等温线
+        /// </summary>
+        /// <param name="low">最低温度</param>
+        /// <param name="high">最高温度</param>
+        /// <returns></returns>
+        public bool SetIsotherm(float low, float high)
+        {
+            var isotherm = new dirp_isotherm_t() { enable = true, high = high, low = low };
+            return _tsdk.dirp_set_isotherm(_ph, isotherm) == 0;
+        }
+        /// <summary>
+        /// 设置亮度
+        /// </summary>
+        /// <param name="brightness">亮度，0~100，默认为 50</param>
+        /// <returns></returns>
+        public bool SetBrightness(byte brightness)
+        {
+            if (brightness > 100) brightness = 100;
+            var enhancement_params_t = new dirp_enhancement_params_t() { brightness = brightness };
+            return _tsdk.dirp_set_enhancement_params(_ph, ref enhancement_params_t) == 0;
+        }
+        /// <summary>
+        /// Run ISP algorithm with RAW data in R-JPEG and output RGB pseudo color image.
+        /// </summary>
+        /// <returns></returns>
+        public byte[] GetProcessedRaw()
+        {
+            byte[] bytes = new byte[_width * _height * 3];
+            int code;
+            code = _tsdk.dirp_process(_ph, bytes, bytes.Length);
+            if (code == 0)
+                return bytes;
+            return Array.Empty<byte>();
+        }
+        /// <summary>
+        ///  Get original RAW binary data from R-JPEG.
+        /// </summary>
+        /// <returns></returns>
+        public byte[] GetOriginalRaw()
+        {
+            byte[] buffer = new byte[_width * _height * 2];
+            if (0 == _tsdk.dirp_get_original_raw(_ph, buffer, buffer.Length))
+                return buffer;
+            return Array.Empty<byte>();
         }
 
         /// <summary>

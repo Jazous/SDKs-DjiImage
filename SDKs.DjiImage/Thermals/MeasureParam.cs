@@ -25,5 +25,10 @@
         /// </summary>
         /// <remarks>-40.0~500.0</remarks>
         public float Reflection { get; set; }
+        /// <summary>
+        /// 环境温度，单位：摄氏度
+        /// </summary>
+        /// <remarks>-50~80</remarks>
+        public float ambient_temp { get; set; }
     }
 }
