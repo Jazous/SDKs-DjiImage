@@ -18,6 +18,12 @@
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
         public extern static int dirp_get_measurement_params(System.IntPtr h, ref MeasureParam measurement_params);
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
+        public extern static int dirp_get_color_bar(System.IntPtr h, ref dirp_color_bar_t color_bar);
+        [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
+        public extern static int dirp_get_color_bar_adaptive_params(System.IntPtr h, ref dirp_color_bar_t color_bar);
+        [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
+        public extern static int dirp_set_color_bar(System.IntPtr h, ref dirp_color_bar_t color_bar);
+        [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
         public extern static int dirp_get_pseudo_color(System.IntPtr h, ref PseudoColor color);
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
         public extern static int dirp_set_pseudo_color(System.IntPtr h, PseudoColor color);

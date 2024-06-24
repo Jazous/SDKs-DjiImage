@@ -923,6 +923,29 @@ namespace SDKs.DjiImage.Thermals
             return _tsdk.dirp_set_enhancement_params(_ph, ref enhancement_params_t) == 0;
         }
         /// <summary>
+        /// 手动设置伪彩色范围。
+        /// </summary>
+        /// <param name="low">最低温度</param>
+        /// <param name="high">最高温度</param>
+        /// <returns></returns>
+        bool SetColorBar(float low, float high)
+        {
+            var color_bar_t = new dirp_color_bar_t() { manual_enable = true, high = high, low = low };
+            var code = _tsdk.dirp_set_color_bar(_ph, ref color_bar_t);
+            return code == 0;
+        }
+        /// <summary>
+        /// 自动设置伪彩色范围。
+        /// </summary>
+        /// <param name="low">最低温度</param>
+        /// <param name="high">最高温度</param>
+        /// <returns></returns>
+        bool SetColorBarAuto(float low, float high)
+        {
+            var color_bar_t = new dirp_color_bar_t() { manual_enable = false, high = 0, low = 0 };
+            return _tsdk.dirp_set_color_bar(_ph, ref color_bar_t) == 0;
+        }
+        /// <summary>
         /// 保存 RGB 伪彩色 Jpeg 图片到指定的流。
         /// </summary>
         /// <returns></returns>

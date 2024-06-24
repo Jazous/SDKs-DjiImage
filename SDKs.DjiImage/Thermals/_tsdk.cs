@@ -35,6 +35,18 @@
         {
             return isLinux ? _sdklinux.dirp_get_measurement_params(h, ref measurement_params) : _sdkwin.dirp_get_measurement_params(h, ref measurement_params);
         }
+        public static int dirp_get_color_bar(System.IntPtr h, ref dirp_color_bar_t color_bar)
+        {
+            return isLinux ? _sdklinux.dirp_get_color_bar(h, ref color_bar) : _sdkwin.dirp_get_color_bar(h, ref color_bar);
+        }
+        public static int dirp_get_color_bar_adaptive_params(System.IntPtr h, ref dirp_color_bar_t color_bar)
+        {
+            return isLinux ? _sdklinux.dirp_get_color_bar_adaptive_params(h, ref color_bar) : _sdkwin.dirp_get_color_bar_adaptive_params(h, ref color_bar);
+        }
+        public static int dirp_set_color_bar(System.IntPtr h, ref dirp_color_bar_t color_bar)
+        {
+            return isLinux ? _sdklinux.dirp_set_color_bar(h, ref color_bar) : _sdkwin.dirp_set_color_bar(h, ref color_bar);
+        }
         public static int dirp_get_pseudo_color(System.IntPtr h, ref PseudoColor color)
         {
             return isLinux ? _sdklinux.dirp_get_pseudo_color(h, ref color) : _sdkwin.dirp_get_pseudo_color(h, ref color);

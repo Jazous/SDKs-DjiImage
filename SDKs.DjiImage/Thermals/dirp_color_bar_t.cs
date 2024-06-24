@@ -2,23 +2,20 @@
 
 namespace SDKs.DjiImage.Thermals
 {
-    /// <summary>
-    /// Isotherm parameters structure definition.
-    /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    struct dirp_isotherm_t
+    struct dirp_color_bar_t
     {
         /// <summary>
-        /// Isotherm switch, enable(true) or disable(false).
+        /// Color bar mode, manual(true) or automatic(false).
         /// </summary>
         [MarshalAs(UnmanagedType.Bool)]
-        public bool enable;
+        public bool manual_enable;
         /// <summary>
-        /// Upper limit. Only effective when isotherm is enabled.
+        /// Upper limit. Only effective when color bar is in manual mode.
         /// </summary>
         public float high;
         /// <summary>
-        /// Lower limit. Only effective when isotherm is enabled.
+        /// Lower limit. Only effective when color bar is in manual mode.
         /// </summary>
         public float low;
     }
