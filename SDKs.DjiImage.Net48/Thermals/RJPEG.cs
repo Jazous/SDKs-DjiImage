@@ -11,6 +11,8 @@
 //====================================================================
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -816,6 +818,78 @@ namespace SDKs.DjiImage.Thermals
             });
             return result;
         }
+
+        /// <summary>
+        /// 设置调色板风格
+        /// </summary>
+        /// <param name="color">色阶风格</param>
+        /// <returns></returns>
+        public bool SetPseudoColor(PseudoColor color)
+        {
+            return _tsdk.dirp_set_pseudo_color(_ph, color) == 0;
+        }
+        /// <summary>
+        /// 设置等温线
+        /// </summary>
+        /// <param name="low">最低温度</param>
+        /// <param name="high">最高温度</param>
+        /// <returns></returns>
+        bool SetIsotherm(float low, float high)
+        {
+            var isotherm = new dirp_isotherm_t() { enable = true, high = high, low = low };
+            return _tsdk.dirp_set_isotherm(_ph, isotherm) == 0;
+        }
+        /// <summary>
+        /// 设置亮度
+        /// </summary>
+        /// <param name="brightness">亮度，0~100，默认为 50</param>
+        /// <returns></returns>
+        public bool SetBrightness(byte brightness)
+        {
+            if (brightness > 100) brightness = 100;
+            var enhancement_params_t = new dirp_enhancement_params_t() { brightness = brightness };
+            return _tsdk.dirp_set_enhancement_params(_ph, ref enhancement_params_t) == 0;
+        }
+        /// <summary>
+        /// 保存 RGB 伪彩色 Jpeg 图片到指定的流。
+        /// </summary>
+        /// <returns></returns>
+        public void SaveTo(Stream stream)
+        {
+            byte[] bytes = new byte[_width * _height * 3];
+            if (0 == _tsdk.dirp_process(_ph, bytes, bytes.Length))
+            {
+                using (var bitmap = new Bitmap(_width, _height))
+                {
+                    byte r, g, b;
+                    int idx = 0;
+                    for (int y = 0; y < _height; y++)
+                    {
+                        for (int x = 0; x < _width; x++)
+                        {
+                            r = bytes[idx];
+                            g = bytes[idx + 1];
+                            b = bytes[idx + 2];
+                            idx = idx + 3;
+                            bitmap.SetPixel(x, y, System.Drawing.Color.FromArgb(r, g, b));
+                        }
+                    }
+                    bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Jpeg);
+                }
+            }
+        }
+        /// <summary>
+        ///  Get original RAW binary data from R-JPEG.
+        /// </summary>
+        /// <returns></returns>
+        byte[] GetOriginalRaw()
+        {
+            byte[] buffer = new byte[_width * _height * 2];
+            if (0 == _tsdk.dirp_get_original_raw(_ph, buffer, buffer.Length))
+                return buffer;
+            return new byte[0];
+        }
+
         /// <summary>
         /// 释放资源
         /// </summary>

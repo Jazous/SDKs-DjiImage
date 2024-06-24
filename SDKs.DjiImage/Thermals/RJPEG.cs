@@ -81,7 +81,7 @@ namespace SDKs.DjiImage.Thermals
 
         private RJPEG()
         {
-            
+
         }
         /// <summary>
         /// 从指定文件创建大疆热红外 R-JPEG 图片
@@ -784,7 +784,7 @@ namespace SDKs.DjiImage.Thermals
             }
             if (sumcount == 0)
                 return AreaTemperature.Empty;
-            
+
             return new AreaTemperature(mintemp, maxtemp, System.MathF.Round(sumtemp / sumcount, 1));
         }
         /// <summary>
@@ -906,13 +906,13 @@ namespace SDKs.DjiImage.Thermals
         /// <param name="low">最低温度</param>
         /// <param name="high">最高温度</param>
         /// <returns></returns>
-        public bool SetIsotherm(float low, float high)
+        bool SetIsotherm(float low, float high)
         {
             var isotherm = new dirp_isotherm_t() { enable = true, high = high, low = low };
             return _tsdk.dirp_set_isotherm(_ph, isotherm) == 0;
         }
         /// <summary>
-        /// 设置亮度
+        /// 设置亮度，默认为 50。
         /// </summary>
         /// <param name="brightness">亮度，0~100，默认为 50</param>
         /// <returns></returns>
@@ -923,23 +923,39 @@ namespace SDKs.DjiImage.Thermals
             return _tsdk.dirp_set_enhancement_params(_ph, ref enhancement_params_t) == 0;
         }
         /// <summary>
-        /// Run ISP algorithm with RAW data in R-JPEG and output RGB pseudo color image.
+        /// 保存 RGB 伪彩色 Jpeg 图片到指定的流。
         /// </summary>
         /// <returns></returns>
-        public byte[] GetProcessedRaw()
+        public void SaveTo(Stream stream)
         {
             byte[] bytes = new byte[_width * _height * 3];
-            int code;
-            code = _tsdk.dirp_process(_ph, bytes, bytes.Length);
-            if (code == 0)
-                return bytes;
-            return Array.Empty<byte>();
+            if (0 == _tsdk.dirp_process(_ph, bytes, bytes.Length))
+            {
+                using (var bitmap = new SkiaSharp.SKBitmap(_width, _height, false))
+                {
+                    byte r, g, b;
+                    int idx = 0;
+                    for (int y = 0; y < _height; y++)
+                    {
+                        for (int x = 0; x < _width; x++)
+                        {
+                            r = bytes[idx];
+                            g = bytes[idx + 1];
+                            b = bytes[idx + 2];
+                            idx = idx + 3;
+                            bitmap.SetPixel(x, y, new SkiaSharp.SKColor(r, g, b));
+                        }
+                    }
+                    using (var data = bitmap.Encode(SkiaSharp.SKEncodedImageFormat.Jpeg, 100))
+                        data.SaveTo(stream);
+                }
+            }
         }
         /// <summary>
         ///  Get original RAW binary data from R-JPEG.
         /// </summary>
         /// <returns></returns>
-        public byte[] GetOriginalRaw()
+        byte[] GetOriginalRaw()
         {
             byte[] buffer = new byte[_width * _height * 2];
             if (0 == _tsdk.dirp_get_original_raw(_ph, buffer, buffer.Length))

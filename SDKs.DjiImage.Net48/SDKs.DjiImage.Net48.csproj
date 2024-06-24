@@ -45,6 +45,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IJPEG.cs" />
@@ -53,12 +54,16 @@
     <Compile Include="Rdf.cs" />
     <Compile Include="RdfDroneDji.cs" />
     <Compile Include="Thermals\AreaTemperature.cs" />
+    <Compile Include="Thermals\dirp_enhancement_params_t.cs" />
+    <Compile Include="Thermals\dirp_isotherm_t.cs" />
     <Compile Include="Thermals\dirp_resolution_t.cs" />
     <Compile Include="Thermals\dirp_ret_code_e.cs" />
+    <Compile Include="Thermals\dirp_rjpeg_version_t.cs" />
     <Compile Include="Thermals\IAreaTemperature.cs" />
     <Compile Include="Thermals\LTCollection.cs" />
     <Compile Include="Thermals\LTEntry.cs" />
     <Compile Include="Thermals\MeasureParam.cs" />
+    <Compile Include="Thermals\PseudoColor.cs" />
     <Compile Include="Thermals\RJPEG.cs" />
     <Compile Include="Thermals\RTEntry.cs" />
     <Compile Include="Thermals\_tsdk.cs" />

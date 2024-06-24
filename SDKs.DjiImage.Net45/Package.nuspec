@@ -2,13 +2,13 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
 	<metadata>
 		<id>SDKs.DjiImage.Net45</id>
-		<version>1.4.3</version>
+		<version>1.5.0</version>
 		<authors>jazous</authors>
 		<requireLicenseAcceptance>true</requireLicenseAcceptance>
 		<license type="expression">MIT</license>
 		<projectUrl>https://github.com/Jazous</projectUrl>
 		<description>Dji TSDK for .NET4.5.2</description>
-		<releaseNotes>1、RJPEG 添加 GetTemp 不带参数的方法，提供温度矩阵返回；2、修复 droneInfo 为 null 时赋值的 bug</releaseNotes>
+		<releaseNotes>1、添加设置调色板风格 SetPseudoColor 方法；2、添加设置亮度 SetBrightness 方法；3、添加 SaveTo 保存设置后的伪彩色照片；4、适配DJI TSDK 1.5版本的环境温度获取。</releaseNotes>
 		<copyright>Copyright (c) 2022-2024 Jazous</copyright>
 		<tags>dji,thermal,r-jpeg</tags>
 		<language>zh</language>

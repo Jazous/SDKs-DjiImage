@@ -8,6 +8,8 @@
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
         public extern static int dirp_get_rjpeg_resolution(System.IntPtr h, ref dirp_resolution_t resolution);
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
+        public extern static int dirp_get_rjpeg_version(System.IntPtr h, ref dirp_rjpeg_version_t rjpeg_version);
+        [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
         public extern static int dirp_get_original_raw(System.IntPtr h, byte[] raw_image, int size);
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
         public extern static int dirp_process(System.IntPtr h, byte[] image_data, int size);

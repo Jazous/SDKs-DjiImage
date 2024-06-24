@@ -15,6 +15,10 @@
         {
             return isLinux ? _sdklinux.dirp_get_rjpeg_resolution(h, ref resolution) : _sdkwin.dirp_get_rjpeg_resolution(h, ref resolution);
         }
+        public static int dirp_get_rjpeg_version(System.IntPtr h, ref dirp_rjpeg_version_t rjpeg_version)
+        {
+            return isLinux ? _sdklinux.dirp_get_rjpeg_version(h, ref rjpeg_version) : _sdkwin.dirp_get_rjpeg_version(h, ref rjpeg_version);
+        }
         public static int dirp_get_original_raw(System.IntPtr h, byte[] raw_image, int size)
         {
             return isLinux ? _sdklinux.dirp_get_original_raw(h, raw_image, size) : _sdkwin.dirp_get_original_raw(h, raw_image, size);

@@ -29,6 +29,6 @@
         /// 环境温度，单位：摄氏度
         /// </summary>
         /// <remarks>-50~80</remarks>
-        public float ambient_temp { get; set; }
+        public float Ambient_Temp { get; set; }
     }
 }

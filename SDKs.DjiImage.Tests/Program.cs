@@ -1,22 +1,29 @@
 ﻿using SDKs.DjiImage.Thermals;
-using SkiaSharp;
-using System.Diagnostics;
-using System.Drawing;
 
-byte[] data = System.IO.File.ReadAllBytes("D:\\pc\\Downloads\\dji_thermal_sdk_v1.5_20240507\\dataset\\M3T\\DJI_0005_R.JPG");
+byte[] data = System.IO.File.ReadAllBytes("3_M3TD.JPG");
 
-var rjpg = RJPEG.FromBytes(data);
-if (rjpg != null)
+using (var rjpg = RJPEG.TryParse(data))
 {
-    Console.WriteLine($"rjpeg：MinTemp={rjpg.MinTemp} ,MaxTemp={rjpg.MaxTemp} ,AvgTemp={rjpg.AvgTemp}");
+    if (rjpg != null)
+    {
+        //获取整张图片的最高温、最低温和平均温度
+        Console.WriteLine($"rjpeg：MinTemp={rjpg.MinTemp} ,MaxTemp={rjpg.MaxTemp} ,AvgTemp={rjpg.AvgTemp}");
 
+        //获取指定矩形范围内的最高温、最低温和平均温度
+        var rect = rjpg.GetRect(100, 100, 200, 200);
+        Console.WriteLine($"rect：MinTemp={rect.MinTemp} ,MaxTemp={rect.MaxTemp} ,AvgTemp={rect.AvgTemp}");
 
-    var rect = rjpg.GetRect(20, 20, rjpg.Width - 20, rjpg.Height - 20);
-    Console.WriteLine($"rect：MinTemp={rect.MinTemp} ,MaxTemp={rect.MaxTemp} ,AvgTemp={rect.AvgTemp}");
+        //设置调色板风格
+        rjpg.SetPseudoColor(PseudoColor.DIRP_PSEUDO_COLOR_HOTIRON);
+        //设置亮度
+        rjpg.SetBrightness(60);
 
-    rjpg.SetPseudoColor(PseudoColor.DIRP_PSEUDO_COLOR_HOTIRON);
-    rjpg.SetIsotherm(26.0f, 28.5f);
-    rjpg.SetBrightness(10);
-    System.IO.File.WriteAllBytes("D:\\c.raw", rjpg.GetProcessedRaw());
+        //保存设置后的伪彩色照片
+        using (var fs = System.IO.File.OpenWrite("3_M3TD_HOTIRON.JPG"))
+        {
+            rjpg.SaveTo(fs);
+            fs.Flush();
+        }
+    }
 }
 Console.ReadKey();
