@@ -11,7 +11,15 @@
   <ItemGroup>
     <None Remove="1.JPG" />
     <None Remove="2.JPG" />
-    <None Remove="3.JPG" />
+    <None Remove="img\H20N.JPG" />
+    <None Remove="img\H20T2.JPG" />
+    <None Remove="img\H30T.JPG" />
+    <None Remove="img\M2EA.JPG" />
+    <None Remove="img\M30T.JPG" />
+    <None Remove="img\M30T1.JPG" />
+    <None Remove="img\M3T.JPG" />
+    <None Remove="img\M4T.JPG" />
+    <None Remove="img\XTS.jpg" />
     <None Remove="libdirp.dll" />
     <None Remove="libdirp.so" />
     <None Remove="libexif.dll" />
@@ -25,19 +33,47 @@
     <None Remove="libv_iirp.dll" />
     <None Remove="libv_iirp.so" />
     <None Remove="libv_list.ini" />
+    <None Remove="M3TD.JPG" />
     <None Remove="MicroIA_Release_x64.dll" />
     <None Remove="MicroJPEG_Release_x64.dll" />
     <None Remove="MicroTA_Release_x64.dll" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="1.JPG">
+    <Content Include="img\H20T1.JPG">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="2.JPG">
+    <Content Include="img\H20T.JPG">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="3.JPG">
+    <Content Include="img\H20N.JPG">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="img\H20T2.JPG">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="img\H30T.JPG">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="img\M2EA.JPG">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="img\M30T.JPG">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="img\M30T1.JPG">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="img\M3T.JPG">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="img\M3TD.JPG">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="img\M4T.JPG">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="img\XTS.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="libdirp.dll">

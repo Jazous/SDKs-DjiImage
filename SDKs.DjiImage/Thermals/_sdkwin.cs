@@ -16,6 +16,8 @@
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
         public extern static int dirp_measure(System.IntPtr h, byte[] temp_image, int size);
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
+        public extern static int dirp_measure_ex(System.IntPtr h, byte[] temp_image, int size);
+        [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
         public extern static int dirp_get_measurement_params(System.IntPtr h, ref MeasureParam measurement_params);
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
         public extern static int dirp_get_color_bar(System.IntPtr h, ref dirp_color_bar_t color_bar);

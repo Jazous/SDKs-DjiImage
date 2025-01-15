@@ -42,11 +42,11 @@ namespace SDKs.DjiImage.Thermals
         }
 
         /// <summary>
-        /// 图像宽度
+        /// 解析分辨率宽度
         /// </summary>
         public int Width => _width;
         /// <summary>
-        /// 图像高度
+        /// 解析分辨率高度
         /// </summary>
         public int Height => _height;
         /// <summary>
@@ -77,7 +77,6 @@ namespace SDKs.DjiImage.Thermals
         /// 图片最高温度位置
         /// </summary>
         public Location[] MaxTempLocs => _maxtemploc;
-
 
         private RJPEG()
         {
@@ -236,14 +235,43 @@ namespace SDKs.DjiImage.Thermals
                 _height = res.height;
                 int rawsize = res.width * res.height * 2;
 
+                //版本
+                //var ver = new dirp_rjpeg_version_t();
+                //_tsdk.dirp_get_rjpeg_version(_ph, ref ver);
+
+                //伪彩色色阶风格
+                _tsdk.dirp_get_pseudo_color(_ph, ref _pseudoColor);
+                //参数
+                var mp = new MeasureParam();
+                _tsdk.dirp_get_measurement_params(_ph, ref mp);
+                _params = mp;
+
+
+                byte[] buffer = new byte[rawsize];
+                _tsdk.dirp_measure(_ph, buffer, rawsize);
+                _mData = Cast(buffer, _width, _height);
+            }
+            return code;
+        }
+        int Load2(byte[] bytes)
+        {
+            int code = _tsdk.dirp_create_from_rjpeg(bytes, bytes.Length, ref _ph);
+            if (code == 0)
+            {
+                var res = new dirp_resolution_t();
+                _tsdk.dirp_get_rjpeg_resolution(_ph, ref res);
+                _width = res.width;
+                _height = res.height;
+                int rawsize = res.width * res.height * 4;
+
                 _tsdk.dirp_get_pseudo_color(_ph, ref _pseudoColor);
                 var mp = new MeasureParam();
                 _tsdk.dirp_get_measurement_params(_ph, ref mp);
                 _params = mp;
 
                 byte[] buffer = new byte[rawsize];
-                _tsdk.dirp_measure(_ph, buffer, rawsize);
-                _mData = Cast(buffer, _width, _height);
+                _tsdk.dirp_measure_ex(_ph, buffer, rawsize);
+                _mData = Cast2(buffer, _width, _height);
             }
             return code;
         }
@@ -286,6 +314,49 @@ namespace SDKs.DjiImage.Thermals
             this._maxtemp = maxtemp;
             this._maxtemploc = maxtemploc.Distinct().ToArray();
             this._avgtemp = System.MathF.Round(sumTemp / result.Length, 1);
+            return result;
+        }
+        float[,] Cast2(byte[] rawData, int width, int height)
+        {
+            var result = new float[width, height];
+            int index = 0;
+            int i, j;
+            byte[] arr = new byte[4] { rawData[0], rawData[1], rawData[2], rawData[3] };
+            float temp = System.BitConverter.ToSingle(arr, 0);
+            float mintemp = temp;
+            float maxtemp = temp;
+            float sumTemp = 0;
+            var maxtemploc = new List<Location>();
+            for (j = 0; j < height; j++)
+            {
+                for (i = 0; i < width; i++)
+                {
+                    arr[0] = rawData[index];
+                    arr[1] = rawData[index + 1];
+                    arr[2] = rawData[index + 2];
+                    arr[3] = rawData[index + 3];
+                    index += 4;
+                    temp = System.BitConverter.ToSingle(arr, 0);
+
+                    result[i, j] = temp;
+                    sumTemp += temp;
+
+                    if (maxtemp < temp)
+                    {
+                        maxtemp = temp;
+                        maxtemploc.Clear();
+                        maxtemploc.Add(new Location(i, j));
+                    }
+                    else if (maxtemp == temp)
+                    {
+                        maxtemploc.Add(new Location(i, j));
+                    }
+                }
+            }
+            this._mintemp = mintemp;
+            this._maxtemp = maxtemp;
+            this._maxtemploc = maxtemploc.Distinct().ToArray();
+            this._avgtemp = sumTemp / result.Length;
             return result;
         }
 
@@ -782,7 +853,7 @@ namespace SDKs.DjiImage.Thermals
             }
             if (sumcount == 0)
                 return AreaTemperature.Empty;
-            
+
             return new AreaTemperature(mintemp, maxtemp, System.MathF.Round(sumtemp / sumcount, 1));
         }
         /// <summary>
@@ -920,6 +991,15 @@ namespace SDKs.DjiImage.Thermals
             return _tsdk.dirp_set_isotherm(_ph, isotherm) == 0;
         }
         /// <summary>
+        /// 关闭（重置）等温线
+        /// </summary>
+        /// <returns></returns>
+        bool ResetIsotherm()
+        {
+            var isotherm = new dirp_isotherm_t() { enable = false, high = 0, low = 0 };
+            return _tsdk.dirp_set_isotherm(_ph, isotherm) == 0;
+        }
+        /// <summary>
         /// 设置亮度，默认为 50。
         /// </summary>
         /// <param name="brightness">亮度，0~100，默认为 50</param>
@@ -934,11 +1014,11 @@ namespace SDKs.DjiImage.Thermals
         /// 获取色度条
         /// </summary>
         /// <returns></returns>
-        (float, float) GetColorBar()
+        dirp_color_bar_t GetColorBar()
         {
             var dirp_color_bar_t = new dirp_color_bar_t();
-            _tsdk.dirp_get_color_bar(_ph, ref dirp_color_bar_t);
-            return (dirp_color_bar_t.low, dirp_color_bar_t.high);
+            var code = _tsdk.dirp_get_color_bar(_ph, ref dirp_color_bar_t);
+            return dirp_color_bar_t;
         }
         /// <summary>
         /// 设置色度条区间
@@ -984,6 +1064,42 @@ namespace SDKs.DjiImage.Thermals
                             b = bytes[idx + 2];
                             idx = idx + 3;
                             bitmap.SetPixel(x, y, new SkiaSharp.SKColor(r, g, b));
+                        }
+                    }
+                    using (var data = bitmap.Encode(SkiaSharp.SKEncodedImageFormat.Jpeg, 100))
+                        data.SaveTo(stream);
+                }
+            }
+        }
+        /// <summary>
+        /// 保存 RGB 伪彩色 Jpeg 图片到指定的流，可以设定指定温度的颜色。
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="setter">根据温度设置对应的颜色，若返回 null 则保留原来的颜色</param>
+        public void SaveTo(Stream stream, Func<float, Rgb?> setter)
+        {
+            byte[] bytes = new byte[_width * _height * 3];
+            Rgb? rgba;
+            if (0 == _tsdk.dirp_process(_ph, bytes, bytes.Length))
+            {
+                using (var bitmap = new SkiaSharp.SKBitmap(_width, _height, false))
+                {
+                    byte r, g, b;
+                    int idx = 0;
+                    for (int y = 0; y < _height; y++)
+                    {
+                        for (int x = 0; x < _width; x++)
+                        {
+                            r = bytes[idx];
+                            g = bytes[idx + 1];
+                            b = bytes[idx + 2];
+                            idx = idx + 3;
+
+                            rgba = setter.Invoke(_mData[x, y]);
+                            if (rgba == null)
+                                bitmap.SetPixel(x, y, new SkiaSharp.SKColor(r, g, b));
+                            else
+                                bitmap.SetPixel(x, y, new SkiaSharp.SKColor(rgba.Value.R, rgba.Value.G, rgba.Value.B));
                         }
                     }
                     using (var data = bitmap.Encode(SkiaSharp.SKEncodedImageFormat.Jpeg, 100))

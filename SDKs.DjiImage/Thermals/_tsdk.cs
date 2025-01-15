@@ -31,6 +31,10 @@
         {
             return isLinux ? _sdklinux.dirp_measure(h, temp_image, size) : _sdkwin.dirp_measure(h, temp_image, size);
         }
+        public static int dirp_measure_ex(System.IntPtr h, byte[] temp_image, int size)
+        {
+            return isLinux ? _sdklinux.dirp_measure_ex(h, temp_image, size) : _sdkwin.dirp_measure_ex(h, temp_image, size);
+        }
         public static int dirp_get_measurement_params(System.IntPtr h, ref MeasureParam measurement_params)
         {
             return isLinux ? _sdklinux.dirp_get_measurement_params(h, ref measurement_params) : _sdkwin.dirp_get_measurement_params(h, ref measurement_params);

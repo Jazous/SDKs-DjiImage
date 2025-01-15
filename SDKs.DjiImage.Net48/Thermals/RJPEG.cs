@@ -48,11 +48,11 @@ namespace SDKs.DjiImage.Thermals
         }
 
         /// <summary>
-        /// 图像宽度
+        /// 解析分辨率宽度
         /// </summary>
         public int Width => _width;
         /// <summary>
-        /// 图像高度
+        /// 解析分辨率高度
         /// </summary>
         public int Height => _height;
         /// <summary>
@@ -872,6 +872,41 @@ namespace SDKs.DjiImage.Thermals
                             b = bytes[idx + 2];
                             idx = idx + 3;
                             bitmap.SetPixel(x, y, System.Drawing.Color.FromArgb(r, g, b));
+                        }
+                    }
+                    bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Jpeg);
+                }
+            }
+        }
+        /// <summary>
+        /// 保存 RGB 伪彩色 Jpeg 图片到指定的流，可以设定指定温度的颜色。
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="setter">根据温度设置对应的颜色，若返回 null 则保留原来的颜色</param>
+        public void SaveTo(Stream stream, Func<float, System.Drawing.Color?> setter)
+        {
+            byte[] bytes = new byte[_width * _height * 3];
+            System.Drawing.Color? color;
+            if (0 == _tsdk.dirp_process(_ph, bytes, bytes.Length))
+            {
+                using (var bitmap = new Bitmap(_width, _height))
+                {
+                    byte r, g, b;
+                    int idx = 0;
+                    for (int y = 0; y < _height; y++)
+                    {
+                        for (int x = 0; x < _width; x++)
+                        {
+                            r = bytes[idx];
+                            g = bytes[idx + 1];
+                            b = bytes[idx + 2];
+                            idx = idx + 3;
+
+                            color = setter.Invoke(_mData[x, y]);
+                            if (color == null)
+                                bitmap.SetPixel(x, y, System.Drawing.Color.FromArgb(r, g, b));
+                            else
+                                bitmap.SetPixel(x, y, color.Value);
                         }
                     }
                     bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Jpeg);

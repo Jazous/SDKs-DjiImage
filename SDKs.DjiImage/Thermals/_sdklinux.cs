@@ -15,6 +15,9 @@
         public extern static int dirp_process(System.IntPtr h, byte[] image_data, int size);
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
         public extern static int dirp_measure(System.IntPtr h, byte[] temp_image, int size);
+
+        [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
+        public extern static int dirp_measure_ex(System.IntPtr h, byte[] temp_image, int size);
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
         public extern static int dirp_get_measurement_params(System.IntPtr h, ref MeasureParam measurement_params);
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
