@@ -6,7 +6,7 @@
 //        filename :RJPEG
 //        description :
 //
-//        created by jazous at  03/09/2008 18:41:28
+//        created by jazous at  03/09/2018 18:41:28
 //
 //====================================================================
 using System;
@@ -21,7 +21,7 @@ namespace SDKs.DjiImage.Thermals
     /// <summary>
     /// 大疆无人机 R-JPEG 热红外照片
     /// </summary>
-    /// <remarks>支持：禅思 H20N、禅思 Zenmuse XT S、禅思 Zenmuse H20 系列、经纬 M30 系列、御 2 行业进阶版、DJI Mavic 3 行业系列</remarks>
+    /// <remarks>支持：禅思 H20N、禅思 Zenmuse XT S、禅思 Zenmuse H20 系列、禅思 H30 系列、经纬 M30 系列、御 2 行业进阶版、DJI Mavic 3 行业系列、大疆机场2、DJI Matrice 4 系列</remarks>
     public sealed class RJPEG : IJPEG, IAreaTemperature
     {
         System.IntPtr _ph = System.IntPtr.Zero;
@@ -235,12 +235,12 @@ namespace SDKs.DjiImage.Thermals
                 _tsdk.dirp_get_rjpeg_resolution(_ph, ref res);
                 _width = res.width;
                 _height = res.height;
+                int rawsize = _width * _height * 2;
 
                 var mp = new MeasureParam();
                 _tsdk.dirp_get_measurement_params(_ph, ref mp);
                 _params = mp;
 
-                int rawsize = _width * _height * 2;
                 byte[] buffer = new byte[rawsize];
                 _tsdk.dirp_measure(_ph, buffer, rawsize);
                 _tsdk.dirp_destroy(_ph);

@@ -5,10 +5,13 @@ namespace SDKs.DjiImage
     static class Rdf
     {
         const string rdf_Description = "<rdf:Description";
+        const string xmp_CreateDate = "xmp:CreateDate=[\"]\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}[-+]\\d{2}:\\d{2}[\"]";
+        const string xmp_ModifyDate = "xmp:ModifyDate=[\"]\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}[-+]\\d{2}:\\d{2}[\"]";
         const string drone_dji_Version = "drone-dji:Version=[\"][\\d]+[.\\d]*[\"]";
         const string drone_dji_Make = "tiff:Make=\"DJI\"";
-        const string drone_dji_Model = "tiff:Model=[\"].+[\"]";
-        const string drone_dji_GpsStatus = "drone-dji:GpsStatus=[\"].+[\"]";
+        const string drone_dji_Model = "tiff:Model=[\"][\\w\\d]+[\"]";
+        const string drone_dji_ImageSource = "drone-dji:ImageSource=[\"][\\w\\d]+[\"]";
+        const string drone_dji_GpsStatus = "drone-dji:GpsStatus=[\"][\\w\\d]+[\"]";
         const string drone_dji_GpsLatitude = "drone-dji:GpsLatitude=[\"][-+]{0,1}\\d+[.\\d+]*[\"]";
         const string drone_dji_GpsLongitude = "drone-dji:GpsLongitude=[\"][-+]{0,1}\\d+[.\\d+]*[\"]";
         const string drone_dji_GpsLongtitude = "drone-dji:GpsLongtitude=[\"][-+]{0,1}\\d+[.\\d+]*[\"]";
@@ -20,6 +23,7 @@ namespace SDKs.DjiImage
         const string drone_dji_FlightRollDegree = "drone-dji:FlightRollDegree=[\"][-+]{0,1}\\d+[.\\d+]*[\"]";
         const string drone_dji_FlightYawDegree = "drone-dji:FlightYawDegree=[\"][-+]{0,1}\\d+[.\\d+]*[\"]";
         const string drone_dji_FlightPitchDegree = "drone-dji:FlightPitchDegree=[\"][-+]{0,1}\\d+[.\\d+]*[\"]";
+        const string drone_dji_SelfData = "drone-dji:SelfData=[\"][\\w\\d]+[\"]";
         const string drone_dji_RtkFlag = "drone-dji:RtkFlag=[\"]\\d+[\"]";
 
         static string GetStr(System.Text.RegularExpressions.Regex regex, System.Text.Encoding encoding, byte[] bytes, int sIndex, int ncount)
@@ -109,6 +113,10 @@ namespace SDKs.DjiImage
             if (mc.Success)
                 meta.Model = mc.Value.Split('=')[1].Trim('"');
 
+            mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_ImageSource, RegexOptions.CultureInvariant);
+            if (mc.Success)
+                meta.ImageSource = mc.Value.Split('=')[1].Trim('"');
+
             mc = System.Text.RegularExpressions.Regex.Match(text, drone_dji_GpsStatus, RegexOptions.CultureInvariant);
             if (mc.Success)
                 meta.GpsStatus = mc.Value.Split('=')[1].Trim('"');
@@ -161,6 +169,20 @@ namespace SDKs.DjiImage
             if (mc.Success)
                 meta.RtkFlag = int.Parse(mc.Value.Split('=')[1].Trim('"'), System.Globalization.CultureInfo.InvariantCulture);
 
+            mc = System.Text.RegularExpressions.Regex.Match(text, xmp_CreateDate, RegexOptions.CultureInvariant);
+            if (mc.Success)
+            {
+                DateTime cdate;
+                if (DateTime.TryParse(mc.Value.Split('=')[1].Trim('"'), out cdate))
+                    meta.CreateDate = cdate;
+            }
+            mc = System.Text.RegularExpressions.Regex.Match(text, xmp_ModifyDate, RegexOptions.CultureInvariant);
+            if (mc.Success)
+            {
+                DateTime mdate;
+                if (DateTime.TryParse(mc.Value.Split('=')[1].Trim('"'), out mdate))
+                    meta.ModifyDate = mdate;
+            }
             return meta;
         }
     }

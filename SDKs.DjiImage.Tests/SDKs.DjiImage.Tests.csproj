@@ -11,7 +11,7 @@
   <ItemGroup>
     <None Remove="1.JPG" />
     <None Remove="2.JPG" />
-    <None Remove="3_M3TD.JPG" />
+    <None Remove="3.JPG" />
     <None Remove="libdirp.dll" />
     <None Remove="libdirp.so" />
     <None Remove="libexif.dll" />
@@ -37,7 +37,7 @@
     <Content Include="2.JPG">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="3_M3TD.JPG">
+    <Content Include="3.JPG">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="libdirp.dll">

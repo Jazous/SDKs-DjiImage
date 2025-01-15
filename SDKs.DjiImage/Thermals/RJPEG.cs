@@ -6,7 +6,7 @@
 //        filename :RJPEG
 //        description :
 //
-//        created by jazous at  03/09/2008 18:41:28
+//        created by jazous at  03/09/2018 18:41:28
 //
 //====================================================================
 namespace SDKs.DjiImage.Thermals
@@ -14,7 +14,7 @@ namespace SDKs.DjiImage.Thermals
     /// <summary>
     /// 大疆无人机 R-JPEG 热红外照片
     /// </summary>
-    /// <remarks>支持：禅思 H20N、禅思 Zenmuse XT S、禅思 Zenmuse H20 系列、经纬 M30 系列、御 2 行业进阶版、DJI Mavic 3 行业系列</remarks>
+    /// <remarks>支持：禅思 H20N、禅思 Zenmuse XT S、禅思 Zenmuse H20 系列、禅思 H30 系列、经纬 M30 系列、御 2 行业进阶版、DJI Mavic 3 行业系列、大疆机场2、DJI Matrice 4 系列</remarks>
     public sealed class RJPEG : IJPEG, IAreaTemperature
     {
         System.IntPtr _ph = System.IntPtr.Zero;
@@ -81,7 +81,6 @@ namespace SDKs.DjiImage.Thermals
 
         private RJPEG()
         {
-
         }
         /// <summary>
         /// 从指定文件创建大疆热红外 R-JPEG 图片
@@ -235,14 +234,13 @@ namespace SDKs.DjiImage.Thermals
                 _tsdk.dirp_get_rjpeg_resolution(_ph, ref res);
                 _width = res.width;
                 _height = res.height;
+                int rawsize = res.width * res.height * 2;
 
                 _tsdk.dirp_get_pseudo_color(_ph, ref _pseudoColor);
-
                 var mp = new MeasureParam();
                 _tsdk.dirp_get_measurement_params(_ph, ref mp);
                 _params = mp;
 
-                int rawsize = _width * _height * 2;
                 byte[] buffer = new byte[rawsize];
                 _tsdk.dirp_measure(_ph, buffer, rawsize);
                 _mData = Cast(buffer, _width, _height);
@@ -784,7 +782,7 @@ namespace SDKs.DjiImage.Thermals
             }
             if (sumcount == 0)
                 return AreaTemperature.Empty;
-
+            
             return new AreaTemperature(mintemp, maxtemp, System.MathF.Round(sumtemp / sumcount, 1));
         }
         /// <summary>
@@ -901,12 +899,22 @@ namespace SDKs.DjiImage.Thermals
             return _tsdk.dirp_set_pseudo_color(_ph, color) == 0;
         }
         /// <summary>
+        /// 获取等温线
+        /// </summary>
+        /// <returns></returns>
+        dirp_isotherm_t GetIsotherm()
+        {
+            var isotherm = new dirp_isotherm_t();
+            var code = _tsdk.dirp_get_isotherm(_ph, ref isotherm);
+            return isotherm;
+        }
+        /// <summary>
         /// 设置等温线
         /// </summary>
         /// <param name="low">最低温度</param>
         /// <param name="high">最高温度</param>
         /// <returns></returns>
-        bool SetIsotherm(float low, float high)
+        bool SetIsotherm(sbyte low, sbyte high)
         {
             var isotherm = new dirp_isotherm_t() { enable = true, high = high, low = low };
             return _tsdk.dirp_set_isotherm(_ph, isotherm) == 0;
@@ -923,12 +931,22 @@ namespace SDKs.DjiImage.Thermals
             return _tsdk.dirp_set_enhancement_params(_ph, ref enhancement_params_t) == 0;
         }
         /// <summary>
-        /// 手动设置伪彩色范围。
+        /// 获取色度条
+        /// </summary>
+        /// <returns></returns>
+        (float, float) GetColorBar()
+        {
+            var dirp_color_bar_t = new dirp_color_bar_t();
+            _tsdk.dirp_get_color_bar(_ph, ref dirp_color_bar_t);
+            return (dirp_color_bar_t.low, dirp_color_bar_t.high);
+        }
+        /// <summary>
+        /// 设置色度条区间
         /// </summary>
         /// <param name="low">最低温度</param>
         /// <param name="high">最高温度</param>
         /// <returns></returns>
-        bool SetColorBar(float low, float high)
+        bool SetColorBar(sbyte low, sbyte high)
         {
             var color_bar_t = new dirp_color_bar_t() { manual_enable = true, high = high, low = low };
             var code = _tsdk.dirp_set_color_bar(_ph, ref color_bar_t);
@@ -937,13 +955,12 @@ namespace SDKs.DjiImage.Thermals
         /// <summary>
         /// 自动设置伪彩色范围。
         /// </summary>
-        /// <param name="low">最低温度</param>
-        /// <param name="high">最高温度</param>
         /// <returns></returns>
-        bool SetColorBarAuto(float low, float high)
+        bool SetColorBarAuto()
         {
             var color_bar_t = new dirp_color_bar_t() { manual_enable = false, high = 0, low = 0 };
-            return _tsdk.dirp_set_color_bar(_ph, ref color_bar_t) == 0;
+            var code = _tsdk.dirp_set_color_bar(_ph, ref color_bar_t);
+            return code == 0;
         }
         /// <summary>
         /// 保存 RGB 伪彩色 Jpeg 图片到指定的流。
@@ -985,7 +1002,6 @@ namespace SDKs.DjiImage.Thermals
                 return buffer;
             return Array.Empty<byte>();
         }
-
         /// <summary>
         /// 释放资源
         /// </summary>

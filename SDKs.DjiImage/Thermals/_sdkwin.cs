@@ -28,7 +28,9 @@
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
         public extern static int dirp_set_pseudo_color(System.IntPtr h, PseudoColor color);
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
-        public extern static int dirp_set_isotherm(System.IntPtr h, dirp_isotherm_t isotherm);
+        public extern static int dirp_get_isotherm(System.IntPtr h, ref dirp_isotherm_t isotherm);
+        [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
+        public extern static int dirp_set_isotherm(System.IntPtr h, ref dirp_isotherm_t isotherm);
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
         public extern static int dirp_get_enhancement_params(System.IntPtr h, ref dirp_enhancement_params_t enhancement_params_t);
         [System.Runtime.InteropServices.DllImport(dllName, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]

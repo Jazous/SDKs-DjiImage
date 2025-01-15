@@ -26,7 +26,7 @@ PM> Install-Package SDKs.DjiImage.Net45
 
 https://www.dji.com/cn/downloads/softwares/dji-thermal-sdk
 
-dji_thermal_sdk_v1.5_20240507.zip
+dji_thermal_sdk_v1.7_20241205.zip
 
 下载后解压，并将对应 `tsdk-core\lib` 目录下的 `libv_list.ini`、`*.dll` 和 `*.so` 文件拷贝到执行程序根目录下
 

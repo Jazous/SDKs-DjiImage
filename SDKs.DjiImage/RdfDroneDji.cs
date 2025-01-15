@@ -20,6 +20,11 @@
         /// </summary>
         public string Model { get; set; }
         /// <summary>
+        /// 照片相机来源
+        /// </summary>
+        /// <remarks>如：InfraredCamera</remarks>
+        public string ImageSource { get; set; }
+        /// <summary>
         /// Gps 状态
         /// </summary>
         /// <remarks>如：Normal，RTK</remarks>
@@ -74,5 +79,13 @@
         /// 当不为 50 时，不推荐使用次照片进行建图。
         /// </remarks>
         public int? RtkFlag { get; set; }
+        /// <summary>
+        /// 创建时间
+        /// </summary>
+        public DateTime? CreateDate { get; set; }
+        /// <summary>
+        /// 修改时间
+        /// </summary>
+        public DateTime? ModifyDate { get; set; }
     }
 }

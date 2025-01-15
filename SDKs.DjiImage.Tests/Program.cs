@@ -1,6 +1,6 @@
 ﻿using SDKs.DjiImage.Thermals;
 
-byte[] data = System.IO.File.ReadAllBytes("3_M3TD.JPG");
+byte[] data = System.IO.File.ReadAllBytes("3.JPG");
 
 using (var rjpg = RJPEG.TryParse(data))
 {
@@ -17,9 +17,8 @@ using (var rjpg = RJPEG.TryParse(data))
         rjpg.SetPseudoColor(PseudoColor.DIRP_PSEUDO_COLOR_HOTIRON);
         //设置亮度
         rjpg.SetBrightness(60);
-
         //保存设置后的伪彩色照片
-        using (var fs = System.IO.File.OpenWrite("3_M3TD_HOTIRON.JPG"))
+        using (var fs = System.IO.File.OpenWrite("3_1.JPG"))
         {
             rjpg.SaveTo(fs);
             fs.Flush();
