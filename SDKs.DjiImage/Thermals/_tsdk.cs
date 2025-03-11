@@ -55,6 +55,10 @@
         {
             return isLinux ? _sdklinux.dirp_get_pseudo_color(h, ref color) : _sdkwin.dirp_get_pseudo_color(h, ref color);
         }
+        public static int dirp_get_pseudo_color_lut(System.IntPtr h, ref PseudoColorLUT lut)
+        {
+            return isLinux ? _sdklinux.dirp_get_pseudo_color_lut(h, ref lut) : _sdkwin.dirp_get_pseudo_color_lut(h, ref lut);
+        }
         public static int dirp_set_pseudo_color(System.IntPtr h, PseudoColor color)
         {
             return isLinux ? _sdklinux.dirp_set_pseudo_color(h, color) : _sdkwin.dirp_set_pseudo_color(h, color);
@@ -65,7 +69,7 @@
         }
         public static int dirp_set_isotherm(System.IntPtr h, dirp_isotherm_t isotherm)
         {
-            return isLinux ? _sdklinux.dirp_set_isotherm(h,ref isotherm) : _sdkwin.dirp_set_isotherm(h,ref isotherm);
+            return isLinux ? _sdklinux.dirp_set_isotherm(h, ref isotherm) : _sdkwin.dirp_set_isotherm(h, ref isotherm);
         }
         public static int dirp_get_enhancement_params(System.IntPtr h, ref dirp_enhancement_params_t enhancement_params_t)
         {

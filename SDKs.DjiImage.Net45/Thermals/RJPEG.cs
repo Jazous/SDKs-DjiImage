@@ -829,6 +829,16 @@ namespace SDKs.DjiImage.Thermals
             return _tsdk.dirp_set_pseudo_color(_ph, color) == 0;
         }
         /// <summary>
+        /// 获取调色板风格
+        /// </summary>
+        /// <returns></returns>
+        public PseudoColor GetPseudoColor()
+        {
+            PseudoColor color = default;
+            _tsdk.dirp_get_pseudo_color(_ph, ref color);
+            return color;
+        }
+        /// <summary>
         /// 设置等温线
         /// </summary>
         /// <param name="low">最低温度</param>
@@ -881,7 +891,7 @@ namespace SDKs.DjiImage.Thermals
         /// <summary>
         /// 保存 RGB 伪彩色 Jpeg 图片到指定的流，可以设定指定温度的颜色。
         /// </summary>
-        /// <param name="stream"></param>
+        /// <param name="stream">需要保存到流</param>
         /// <param name="setter">根据温度设置对应的颜色，若返回 null 则保留原来的颜色</param>
         public void SaveTo(Stream stream, Func<float, System.Drawing.Color?> setter)
         {
@@ -911,6 +921,53 @@ namespace SDKs.DjiImage.Thermals
                     }
                     bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Jpeg);
                 }
+            }
+        }
+        /// <summary>
+        /// 保存 RGB 伪彩色 Jpeg 图片到指定的流，可以设定指定温度区间。
+        /// </summary>
+        /// <param name="stream">需要保存到流</param>
+        /// <param name="minTemp">最低温度</param>
+        /// <param name="maxTemp">最高我呢度</param>
+        public void SaveTo(Stream stream, float minTemp, float maxTemp)
+        {
+            if (maxTemp < minTemp)
+                throw new ArgumentException("maxTemp must larger‌ than minTemp.", nameof(minTemp));
+
+            if (minTemp < _mintemp) minTemp = _mintemp;
+            if (maxTemp > _maxtemp) maxTemp = _maxtemp;
+            float range = maxTemp - minTemp;
+
+            PseudoColor color = default;
+            _tsdk.dirp_get_pseudo_color(_ph, ref color);
+
+            PseudoColorLUT lut = default;
+            _tsdk.dirp_get_pseudo_color_lut(_ph, ref lut);
+
+            using (var bitmap = new Bitmap(_width, _height))
+            {
+                byte r, g, b, val;
+                float temp;
+                for (int y = 0; y < _height; y++)
+                {
+                    for (int x = 0; x < _width; x++)
+                    {
+                        //归一化
+                        temp = _mData[x, y];
+                        if (temp < minTemp)
+                            temp = minTemp;
+                        else if (temp > maxTemp)
+                            temp = maxTemp;
+                        val = Convert.ToByte((((temp - minTemp) / range) * 255));
+
+                        r = lut.GetRed(color, val);
+                        g = lut.GetGreen(color, val);
+                        b = lut.GetBlue(color, val);
+
+                        bitmap.SetPixel(x, y, System.Drawing.Color.FromArgb(r, g, b));
+                    }
+                }
+                bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Jpeg);
             }
         }
         /// <summary>

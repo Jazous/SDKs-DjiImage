@@ -1,7 +1,6 @@
-﻿using SDKs.DjiImage;
-using SDKs.DjiImage.Thermals;
+﻿using SDKs.DjiImage.Thermals;
 
-byte[] data = System.IO.File.ReadAllBytes("img/H20T.JPG");
+byte[] data = System.IO.File.ReadAllBytes("img/H30T.JPG");
 
 using (var rjpg = RJPEG.TryParse(data))
 {
@@ -15,15 +14,15 @@ using (var rjpg = RJPEG.TryParse(data))
         Console.WriteLine($"rect：MinTemp={rect.MinTemp} ,MaxTemp={rect.MaxTemp} ,AvgTemp={rect.AvgTemp}");
 
         //设置调色板风格
-        rjpg.SetPseudoColor(PseudoColor.DIRP_PSEUDO_COLOR_HOTIRON);
+        rjpg.SetPseudoColor(PseudoColor.DIRP_PSEUDO_COLOR_IRONRED);
 
         //设置亮度
         rjpg.SetBrightness(60);
 
-        //设置小于60摄氏度以下的像素点为黑色
-        using (var fs = System.IO.File.OpenWrite("h20t_modify.JPG"))
+        //设置温宽
+        using (var fs = System.IO.File.OpenWrite("H30T_adjust.JPG"))
         {
-            rjpg.SaveTo(fs, t => t <= 60 ? Rgb.Black : null);
+            rjpg.SaveTo(fs, rjpg.MaxTemp - 2, rjpg.MaxTemp);
             fs.Flush();
         }
     }

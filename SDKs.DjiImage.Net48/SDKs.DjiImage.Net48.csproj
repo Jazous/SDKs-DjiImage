@@ -64,6 +64,7 @@
     <Compile Include="Thermals\LTEntry.cs" />
     <Compile Include="Thermals\MeasureParam.cs" />
     <Compile Include="Thermals\PseudoColor.cs" />
+    <Compile Include="Thermals\PseudoColorLUT.cs" />
     <Compile Include="Thermals\RJPEG.cs" />
     <Compile Include="Thermals\RTEntry.cs" />
     <Compile Include="Thermals\_tsdk.cs" />

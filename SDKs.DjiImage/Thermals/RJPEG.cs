@@ -970,6 +970,16 @@ namespace SDKs.DjiImage.Thermals
             return _tsdk.dirp_set_pseudo_color(_ph, color) == 0;
         }
         /// <summary>
+        /// 获取调色板风格
+        /// </summary>
+        /// <returns></returns>
+        public PseudoColor? GetPseudoColor()
+        {
+            PseudoColor color = default;
+            _tsdk.dirp_get_pseudo_color(_ph, ref color);
+            return color;
+        }
+        /// <summary>
         /// 获取等温线
         /// </summary>
         /// <returns></returns>
@@ -1010,28 +1020,21 @@ namespace SDKs.DjiImage.Thermals
             var enhancement_params_t = new dirp_enhancement_params_t() { brightness = brightness };
             return _tsdk.dirp_set_enhancement_params(_ph, ref enhancement_params_t) == 0;
         }
-        /// <summary>
-        /// 获取色度条
-        /// </summary>
-        /// <returns></returns>
+
         dirp_color_bar_t GetColorBar()
         {
             var dirp_color_bar_t = new dirp_color_bar_t();
             var code = _tsdk.dirp_get_color_bar(_ph, ref dirp_color_bar_t);
             return dirp_color_bar_t;
         }
-        /// <summary>
-        /// 设置色度条区间
-        /// </summary>
-        /// <param name="low">最低温度</param>
-        /// <param name="high">最高温度</param>
-        /// <returns></returns>
+        
         bool SetColorBar(sbyte low, sbyte high)
         {
             var color_bar_t = new dirp_color_bar_t() { manual_enable = true, high = high, low = low };
             var code = _tsdk.dirp_set_color_bar(_ph, ref color_bar_t);
             return code == 0;
         }
+
         /// <summary>
         /// 自动设置伪彩色范围。
         /// </summary>
@@ -1074,7 +1077,7 @@ namespace SDKs.DjiImage.Thermals
         /// <summary>
         /// 保存 RGB 伪彩色 Jpeg 图片到指定的流，可以设定指定温度的颜色。
         /// </summary>
-        /// <param name="stream"></param>
+        /// <param name="stream">需要保存到流</param>
         /// <param name="setter">根据温度设置对应的颜色，若返回 null 则保留原来的颜色</param>
         public void SaveTo(Stream stream, Func<float, Rgb?> setter)
         {
@@ -1107,6 +1110,55 @@ namespace SDKs.DjiImage.Thermals
                 }
             }
         }
+        /// <summary>
+        /// 保存 RGB 伪彩色 Jpeg 图片到指定的流，可以设定指定温度区间。
+        /// </summary>
+        /// <param name="stream">需要保存到流</param>
+        /// <param name="minTemp">最低温度</param>
+        /// <param name="maxTemp">最高我呢度</param>
+        public void SaveTo(Stream stream, float minTemp, float maxTemp)
+        {
+            if (maxTemp < minTemp)
+                throw new ArgumentException("maxTemp must larger‌ than minTemp.", nameof(minTemp));
+
+            if (minTemp < _mintemp) minTemp = _mintemp;
+            if (maxTemp > _maxtemp) maxTemp = _maxtemp;
+            float range = maxTemp - minTemp;
+
+            PseudoColor color = default;
+            _tsdk.dirp_get_pseudo_color(_ph, ref color);
+
+            PseudoColorLUT lut = default;
+            _tsdk.dirp_get_pseudo_color_lut(_ph, ref lut);
+
+            using (var bitmap = new SkiaSharp.SKBitmap(_width, _height, false))
+            {
+                byte r, g, b, val;
+                float temp;
+                for (int y = 0; y < _height; y++)
+                {
+                    for (int x = 0; x < _width; x++)
+                    {
+                        //归一化
+                        temp = _mData[x, y];
+                        if (temp < minTemp)
+                            temp = minTemp;
+                        else if (temp > maxTemp)
+                            temp = maxTemp;
+                        val = (byte)Math.Clamp(((temp - minTemp) / range) * 255, 0, 255);
+
+                        r = lut.GetRed(color, val);
+                        g = lut.GetGreen(color, val);
+                        b = lut.GetBlue(color, val);
+
+                        bitmap.SetPixel(x, y, new SkiaSharp.SKColor(r, g, b));
+                    }
+                }
+                using (var data = bitmap.Encode(SkiaSharp.SKEncodedImageFormat.Jpeg, 100))
+                    data.SaveTo(stream);
+            }
+        }
+
         /// <summary>
         ///  Get original RAW binary data from R-JPEG.
         /// </summary>

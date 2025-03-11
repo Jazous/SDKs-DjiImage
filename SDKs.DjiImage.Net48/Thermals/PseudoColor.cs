@@ -5,7 +5,7 @@ namespace SDKs.DjiImage.Thermals
     /// <summary>
     /// 伪彩色调色板枚举
     /// </summary>
-    public enum PseudoColor
+    public enum PseudoColor : byte
     {
         /// <summary>
         /// White Hot
@@ -56,10 +56,6 @@ namespace SDKs.DjiImage.Thermals
         /// Black Hot
         /// </summary>
         [Description("黑热")]
-        DIRP_PSEUDO_COLOR_BLACKHOT,
-        /// <summary>
-        /// Total number
-        /// </summary>
-        DIRP_PSEUDO_COLOR_NUM
+        DIRP_PSEUDO_COLOR_BLACKHOT
     }
 }

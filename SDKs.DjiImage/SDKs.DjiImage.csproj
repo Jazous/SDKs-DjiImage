@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <SignAssembly>True</SignAssembly>
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-	<Version>1.5.0</Version>
+	<Version>1.7.0</Version>
 	<Authors>jazous</Authors>
 	<RepositoryUrl>https://github.com/Jazous/SDKs-DjiImage.git</RepositoryUrl>
 	<PackageProjectUrl>https://github.com/Jazous/SDKs-DjiImage</PackageProjectUrl>
@@ -18,7 +18,7 @@
 	<PackageReadmeFile>README.md</PackageReadmeFile>
 	<NeutralLanguage>zh</NeutralLanguage>
 	<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-	<Copyright>Copyright(c) 2022-2024 jazous</Copyright>
+	<Copyright>Copyright(c) 2022-2025 jazous</Copyright>
 	<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	<PlatformTarget>AnyCPU</PlatformTarget>
 	<ErrorReport>none</ErrorReport>
@@ -26,7 +26,7 @@
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	<AssemblyOriginatorKeyFile>..\SDKs.snk</AssemblyOriginatorKeyFile>
 	<DocumentationFile>obj\Release\net6.0\SDKs.DjiImage.xml</DocumentationFile>
-	<PackageReleaseNotes>1、添加设置调色板风格 SetPseudoColor 方法；2、添加设置亮度 SetBrightness 方法；3、添加 SaveTo 保存设置后的伪彩色照片；4、适配DJI TSDK 1.5版本的环境温度获取。</PackageReleaseNotes>
+	<PackageReleaseNotes>1、添加调整温度色度条功能；2、添加根据温度设置颜色功能。</PackageReleaseNotes>
 	<Company>745424554@qq.com</Company>
 	<Product>$(AssemblyName).dll</Product>
   </PropertyGroup>
