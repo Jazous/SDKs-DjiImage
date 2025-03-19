@@ -1021,6 +1021,17 @@ namespace SDKs.DjiImage.Thermals
             return _tsdk.dirp_set_enhancement_params(_ph, ref enhancement_params_t) == 0;
         }
 
+        /// <summary>
+        /// 获取 8 bit 伪彩色 LUT 表
+        /// </summary>
+        /// <returns></returns>
+        public PseudoColorLUT GetPseudoColorLUT()
+        {
+            PseudoColorLUT lut = default;
+            _tsdk.dirp_get_pseudo_color_lut(_ph, ref lut);
+            return lut;
+        }
+
         dirp_color_bar_t GetColorBar()
         {
             var dirp_color_bar_t = new dirp_color_bar_t();

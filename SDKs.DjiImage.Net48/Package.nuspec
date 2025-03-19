@@ -2,13 +2,13 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
 	<metadata>
 		<id>SDKs.DjiImage.Net48</id>
-		<version>1.7.0</version>
+		<version>1.7.1</version>
 		<authors>jazous</authors>
 		<requireLicenseAcceptance>true</requireLicenseAcceptance>
 		<license type="expression">MIT</license>
 		<projectUrl>https://github.com/Jazous</projectUrl>
 		<description>Dji TSDK for .NET4.8</description>
-		<releaseNotes>1、添加调整温度色度条功能；2、添加根据温度设置颜色功能。</releaseNotes>
+		<releaseNotes>1、添加获取伪彩色LUT方法。</releaseNotes>
 		<copyright>Copyright (c) 2022-2025 Jazous</copyright>
 		<tags>dji,thermal,r-jpeg</tags>
 		<language>zh</language>

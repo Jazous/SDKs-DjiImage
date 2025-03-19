@@ -8,26 +8,26 @@ namespace SDKs.DjiImage.Thermals
     public struct PseudoColorLUT
     {
         /// <summary>
-        /// 红色 LUT
+        /// 红色 LUT，0~255
         /// </summary>
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2560, ArraySubType = UnmanagedType.U1)]
-        internal byte[] red;
+        public byte[] red;
         /// <summary>
-        /// 绿色 LUT
+        /// 绿色 LUT，0~255
         /// </summary>
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2560, ArraySubType = UnmanagedType.U1)]
-        internal byte[] green;
+        public byte[] green;
         /// <summary>
-        /// 蓝色 LUT
+        /// 蓝色 LUT，0~255
         /// </summary>
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2560, ArraySubType = UnmanagedType.U1)]
-        internal byte[] blue;
+        public byte[] blue;
 
         /// <summary>
         /// 获取指定伪彩色映射的 Red 颜色值
         /// </summary>
         /// <param name="color"></param>
-        /// <param name="value"></param>
+        /// <param name="value">0~255</param>
         /// <returns></returns>
         public byte GetRed(PseudoColor color, byte value)
         {
@@ -37,7 +37,7 @@ namespace SDKs.DjiImage.Thermals
         /// 获取指定伪彩色映射的 Green 颜色值
         /// </summary>
         /// <param name="color"></param>
-        /// <param name="value"></param>
+        /// <param name="value">0~255</param>
         /// <returns></returns>
 
         public byte GetGreen(PseudoColor color, int value)
@@ -48,13 +48,12 @@ namespace SDKs.DjiImage.Thermals
         /// 获取指定伪彩色映射的 Blue 颜色值
         /// </summary>
         /// <param name="color"></param>
-        /// <param name="value"></param>
+        /// <param name="value">0~255</param>
         /// <returns></returns>
 
         public byte GetBlue(PseudoColor color, int value)
         {
             return blue[(byte)color * 256 + value];
         }
-
     }
 }
