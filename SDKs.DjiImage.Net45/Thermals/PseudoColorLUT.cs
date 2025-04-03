@@ -11,17 +11,17 @@ namespace SDKs.DjiImage.Thermals
         /// 红色 LUT，0~255
         /// </summary>
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2560, ArraySubType = UnmanagedType.U1)]
-        public byte[] red;
+        public byte[] Red;
         /// <summary>
         /// 绿色 LUT，0~255
         /// </summary>
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2560, ArraySubType = UnmanagedType.U1)]
-        public byte[] green;
+        public byte[] Green;
         /// <summary>
         /// 蓝色 LUT，0~255
         /// </summary>
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2560, ArraySubType = UnmanagedType.U1)]
-        public byte[] blue;
+        public byte[] Blue;
 
         /// <summary>
         /// 获取指定伪彩色映射的 Red 颜色值
@@ -31,7 +31,7 @@ namespace SDKs.DjiImage.Thermals
         /// <returns></returns>
         public byte GetRed(PseudoColor color, byte value)
         {
-            return red[(byte)color * 256 + value];
+            return Red[(byte)color * 256 + value];
         }
         /// <summary>
         /// 获取指定伪彩色映射的 Green 颜色值
@@ -42,7 +42,7 @@ namespace SDKs.DjiImage.Thermals
 
         public byte GetGreen(PseudoColor color, int value)
         {
-            return green[(byte)color * 256 + value];
+            return Green[(byte)color * 256 + value];
         }
         /// <summary>
         /// 获取指定伪彩色映射的 Blue 颜色值
@@ -53,7 +53,7 @@ namespace SDKs.DjiImage.Thermals
 
         public byte GetBlue(PseudoColor color, int value)
         {
-            return blue[(byte)color * 256 + value];
+            return Blue[(byte)color * 256 + value];
         }
     }
 }
